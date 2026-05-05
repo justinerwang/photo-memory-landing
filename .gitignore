@@ -1,0 +1,11 @@
+.DS_Store
+Thumbs.db
+
+# Local-only test artifacts
+*.log
+.cache/
+
+# Keep published static assets explicit.
+node_modules/
+dist/
+build/
