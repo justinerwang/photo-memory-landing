@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Photo Memory - Local Photo Archive Search</title>
+    <meta
+      name="description"
+      content="A local-only desktop search and management app for messy photo archives."
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #07352d;
+        --body: #344256;
+        --muted: #667085;
+        --cream: #fffaf2;
+        --paper: #ffffff;
+        --line: #f0d9be;
+        --soft: #fff3e4;
+        --orange: #ff5a45;
+        --orange-dark: #ec3f2c;
+        --gold: #f5a51b;
+        --green: #3f7c68;
+        --shadow: 0 22px 60px rgba(55, 45, 35, 0.16);
+        --hero-visual-height: 600px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--body);
+        background:
+          radial-gradient(circle at 96% 16%, #ffd6bb 0 9%, transparent 9.2%),
+          radial-gradient(circle at 39% 36%, #ffe6cf 0 11%, transparent 11.2%),
+          radial-gradient(circle at 92% 70%, #ffd9bf 0 12%, transparent 12.2%),
+          linear-gradient(180deg, #fffaf3 0%, #fffdf9 58%, #fff8ee 100%);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .wrap {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 32px 0 18px;
+      }
+
+      .brand,
+      h1,
+      h2,
+      h3 {
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+        letter-spacing: 0;
+      }
+
+      .brand {
+        font-size: clamp(1.75rem, 4vw, 2.35rem);
+        font-weight: 800;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+      }
+
+      .nav-links a {
+        color: var(--ink);
+        font-size: 1.08rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 54px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 10px;
+        padding: 0 28px;
+        background: linear-gradient(135deg, var(--orange), #ff3f32);
+        color: #fff;
+        font: inherit;
+        font-size: 1.05rem;
+        font-weight: 800;
+        text-decoration: none;
+        box-shadow: 0 12px 24px rgba(255, 90, 69, 0.24);
+        cursor: pointer;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(390px, 0.82fr) minmax(500px, 1fr);
+        gap: 48px;
+        align-items: start;
+        padding: 42px 0 58px;
+      }
+
+      .hero-copy {
+        display: flex;
+        min-height: var(--hero-visual-height);
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      h1 {
+        max-width: 430px;
+        margin: 0 0 24px;
+        font-size: clamp(3.45rem, 6.6vw, 4.65rem);
+        line-height: 1;
+        font-weight: 900;
+      }
+
+      h1 .dot {
+        color: var(--gold);
+      }
+
+      .lead {
+        max-width: 405px;
+        margin: 0 0 34px;
+        color: #506075;
+        font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+        line-height: 1.48;
+      }
+
+      .hero-art {
+        position: relative;
+        min-height: var(--hero-visual-height);
+      }
+
+      .laptop {
+        position: absolute;
+        right: -46px;
+        top: 0;
+        width: min(720px, 100%);
+      }
+
+      .screen {
+        border: 11px solid #d8d4cf;
+        border-radius: 22px 22px 12px 12px;
+        background: #fbfaf8;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .window-bar {
+        display: flex;
+        gap: 8px;
+        padding: 25px 24px 17px;
+      }
+
+      .traffic {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--orange);
+      }
+
+      .traffic:nth-child(2) {
+        background: #f6af29;
+      }
+
+      .traffic:nth-child(3) {
+        background: #56b865;
+      }
+
+      .app {
+        padding: 0 28px 28px;
+      }
+
+      .search {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        height: 54px;
+        border: 1px solid #e3e5e8;
+        border-radius: 9px;
+        background: #fff;
+        padding: 0 18px;
+        color: #1f2937;
+        font-size: 1.05rem;
+      }
+
+      .search svg,
+      .icon svg {
+        flex: 0 0 auto;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 11px;
+        margin: 16px 0;
+      }
+
+      .stat {
+        border: 1px solid #ece1d7;
+        border-radius: 9px;
+        background: #fff;
+        padding: 14px 17px;
+      }
+
+      .stat strong {
+        display: block;
+        color: #111827;
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+
+      .stat span {
+        color: #111827;
+        font-size: 0.82rem;
+      }
+
+      .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .photo {
+        position: relative;
+        min-height: 154px;
+        border-radius: 9px;
+        overflow: hidden;
+        background: #ddd;
+      }
+
+      .photo::before,
+      .photo::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+      }
+
+      .photo::before {
+        background:
+          radial-gradient(circle at 44% 24%, #593012 0 12%, transparent 12.4%),
+          radial-gradient(circle at 62% 27%, #6c3c1e 0 11%, transparent 11.4%),
+          radial-gradient(circle at 45% 64%, #f8bd73 0 27%, transparent 27.4%),
+          radial-gradient(circle at 62% 64%, #ffc780 0 28%, transparent 28.4%),
+          linear-gradient(140deg, #46351a, #f7a94f 55%, #542a19);
+      }
+
+      .photo::after {
+        background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.28));
+      }
+
+      .photo:nth-child(2)::before {
+        background:
+          radial-gradient(circle at 46% 28%, #674228 0 11%, transparent 11.5%),
+          radial-gradient(circle at 66% 29%, #8d5537 0 10%, transparent 10.5%),
+          radial-gradient(circle at 32% 32%, #895b40 0 9%, transparent 9.5%),
+          linear-gradient(135deg, #eec477, #8db86f 58%, #6d7f43);
+      }
+
+      .photo:nth-child(3)::before {
+        background:
+          radial-gradient(circle at 60% 38%, #39534a 0 8%, transparent 8.5%),
+          radial-gradient(circle at 34% 35%, #f1c577 0 9%, transparent 9.5%),
+          linear-gradient(135deg, #a8d2dc 0 36%, #d8d19a 36% 58%, #537b6d 58%);
+      }
+
+      .photo:nth-child(4)::before {
+        background:
+          radial-gradient(circle at 38% 27%, #d9a06d 0 9%, transparent 9.5%),
+          radial-gradient(circle at 63% 24%, #e0ad73 0 9%, transparent 9.5%),
+          linear-gradient(135deg, #edf0bb, #8fb76a 54%, #d1aa65);
+      }
+
+      .photo:nth-child(5)::before {
+        background: linear-gradient(180deg, #f5a25d 0 37%, #ffd9a0 37% 52%, #a8583b 52%);
+      }
+
+      .photo:nth-child(6)::before {
+        background:
+          linear-gradient(18deg, transparent 0 38%, rgba(255, 255, 255, 0.78) 38% 61%, transparent 61%),
+          linear-gradient(155deg, #2f1d13, #a56f38 48%, #25180f);
+      }
+
+      .tag {
+        position: absolute;
+        left: 9px;
+        bottom: 9px;
+        z-index: 1;
+        border-radius: 999px;
+        background: #fff;
+        padding: 8px 10px;
+        color: #111827;
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      .base {
+        width: 118%;
+        height: 30px;
+        margin: 0 0 0 -9%;
+        border-radius: 0 0 50% 50%;
+        background: linear-gradient(180deg, #d7d8d7, #9ea3a4 54%, #e4e5e3);
+        box-shadow: 0 10px 18px rgba(0, 0, 0, 0.22);
+      }
+
+      .pills {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+        margin-top: auto;
+        padding: 10px 0 0;
+        white-space: nowrap;
+      }
+
+      .pill {
+        display: inline-flex;
+        min-height: 40px;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid #f1dfca;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 0 11px;
+        color: var(--green);
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .pill svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .feature-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        padding: 44px 0 34px;
+      }
+
+      .feature {
+        display: grid;
+        grid-template-columns: 76px 1fr;
+        gap: 18px;
+        align-items: center;
+      }
+
+      .feature + .feature {
+        border-left: 1px solid #f0cba4;
+        padding-left: 28px;
+      }
+
+      .feature h3,
+      .case h3 {
+        margin: 0 0 8px;
+        font-size: 1.3rem;
+      }
+
+      .feature p,
+      .case p {
+        margin: 0;
+        color: #5b6577;
+        font-size: 1rem;
+        line-height: 1.52;
+      }
+
+      .icon {
+        display: grid;
+        width: 68px;
+        height: 68px;
+        place-items: center;
+        border-radius: 50%;
+        color: var(--green);
+        background: #eff8ef;
+      }
+
+      .icon svg {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
+      .icon.gold {
+        color: var(--gold);
+        background: #fff1d2;
+      }
+
+      .icon.coral {
+        color: var(--orange);
+        background: #ffe5dc;
+      }
+
+      .section {
+        padding: 34px 0 34px;
+        text-align: center;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 2.35rem);
+        line-height: 1.1;
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin: 18px auto 28px;
+        color: var(--gold);
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        width: 38px;
+        height: 1px;
+        background: var(--gold);
+      }
+
+      .cases {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+      }
+
+      .case {
+        display: grid;
+        grid-template-columns: 76px 1fr;
+        gap: 18px;
+        align-items: center;
+        padding: 0;
+        text-align: left;
+      }
+
+      .case + .case {
+        border-left: 1px solid #f0cba4;
+        padding-left: 28px;
+      }
+
+      .pricing {
+        display: grid;
+        grid-template-columns: 0.8fr 1fr;
+        gap: 46px;
+        align-items: center;
+        margin: 0 auto 38px;
+        border: 1px solid #edc99f;
+        border-radius: 18px;
+        background: rgba(255, 250, 243, 0.88);
+        padding: 30px 54px 34px;
+      }
+
+      .price-copy {
+        position: relative;
+        min-height: 270px;
+        text-align: left;
+      }
+
+      .spark {
+        color: var(--gold);
+        font-size: 2.2rem;
+      }
+
+      .price {
+        margin: 0;
+        color: var(--orange);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(4.8rem, 9.5vw, 6.6rem);
+        line-height: 0.85;
+      }
+
+      .price small {
+        font-size: 1.75rem;
+        font-weight: 800;
+      }
+
+      .price-note {
+        max-width: 270px;
+        margin: 16px 0 0 0;
+        color: #233044;
+        font-size: 1.22rem;
+        line-height: 1.42;
+      }
+
+      .prints {
+        position: absolute;
+        left: 150px;
+        bottom: 0;
+        width: 180px;
+        height: 88px;
+        transform: translateY(24px);
+      }
+
+      .print {
+        position: absolute;
+        width: 112px;
+        height: 76px;
+        border: 7px solid #fff;
+        border-bottom-width: 17px;
+        border-radius: 3px;
+        background: linear-gradient(135deg, #7b4d28, #f5af49 48%, #d8e0d8);
+        box-shadow: 0 10px 22px rgba(120, 82, 38, 0.18);
+      }
+
+      .print:nth-child(1) {
+        transform: rotate(-15deg);
+      }
+
+      .print:nth-child(2) {
+        left: 48px;
+        top: -12px;
+        transform: rotate(-8deg);
+      }
+
+      .heart {
+        position: absolute;
+        left: 170px;
+        top: 24px;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #fff3df, #ffa447 68%);
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7);
+      }
+
+      form {
+        display: grid;
+        gap: 16px;
+        text-align: left;
+      }
+
+      label {
+        display: block;
+        margin: 0 0 8px;
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 800;
+      }
+
+      input {
+        width: 100%;
+        min-height: 54px;
+        border: 1px solid #d8dce3;
+        border-radius: 8px;
+        background: #fff;
+        padding: 0 16px;
+        color: #111827;
+        font: inherit;
+        font-size: 1rem;
+        box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
+      }
+
+      form .button {
+        width: 100%;
+        min-height: 64px;
+        margin-top: 6px;
+        font-size: 1.14rem;
+      }
+
+      .fine-print {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        margin: 4px 0 0;
+        color: #596477;
+        font-size: 0.96rem;
+        text-align: center;
+      }
+
+      footer {
+        padding: 0 0 28px;
+        color: #6b7280;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .pricing {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-art {
+          min-height: auto;
+        }
+
+        .hero-copy {
+          min-height: auto;
+        }
+
+        .pills {
+          flex-wrap: wrap;
+          margin-top: 18px;
+          white-space: normal;
+        }
+
+        .laptop {
+          position: relative;
+          right: auto;
+          width: 100%;
+        }
+
+        .feature-strip,
+        .cases {
+          grid-template-columns: 1fr;
+        }
+
+        .feature + .feature {
+          border-left: 0;
+          border-top: 1px solid #f0cba4;
+          padding-left: 0;
+          padding-top: 24px;
+        }
+
+        .case + .case {
+          border-left: 0;
+          border-top: 1px solid #f0cba4;
+          padding-left: 0;
+          padding-top: 24px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .wrap {
+          width: min(100% - 28px, 1120px);
+        }
+
+        .nav {
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .nav-links {
+          gap: 12px;
+        }
+
+        .nav-links a:not(.button) {
+          display: none;
+        }
+
+        .button {
+          min-height: 48px;
+          padding: 0 18px;
+          font-size: 0.98rem;
+        }
+
+        h1 {
+          font-size: clamp(3rem, 14vw, 4rem);
+        }
+
+        .hero {
+          gap: 28px;
+          padding-top: 28px;
+        }
+
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .photo-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .photo {
+          min-height: 128px;
+        }
+
+        .screen {
+          border-width: 7px;
+        }
+
+        .app {
+          padding: 0 14px 16px;
+        }
+
+        .case,
+        .feature {
+          grid-template-columns: 62px 1fr;
+          padding: 24px 18px;
+        }
+
+        .icon {
+          width: 56px;
+          height: 56px;
+        }
+
+        .pricing {
+          gap: 28px;
+          padding: 26px 20px 28px;
+        }
+
+        .price-copy {
+          min-height: 230px;
+        }
+
+        .price-note {
+          margin-left: 0;
+        }
+
+        .prints {
+          left: 120px;
+          transform: translateY(14px) scale(0.8);
+          transform-origin: left bottom;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="wrap nav">
+      <div class="brand">Photo Memory</div>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#features" data-track="nav_features_click">Features</a>
+        <a class="button" href="#waitlist" data-track="nav_waitlist_click">Join waitlist</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="wrap hero">
+        <div class="hero-copy">
+          <h1>Find the photos you forgot you had<span class="dot">.</span></h1>
+          <p class="lead">
+            Search years of memories across old drives and exports - privately,
+            on your computer.
+          </p>
+          <div class="pills" aria-label="Product promises">
+            <span class="pill">
+              <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" fill="none" stroke="currentColor" stroke-width="2" />
+                <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+              </svg>
+              Local-only
+            </span>
+            <span class="pill">
+              <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2" />
+              </svg>
+              Private
+            </span>
+            <span class="pill">
+              <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.6 13.1 13.1 20.6a2 2 0 0 1-2.8 0L3 13.3V4h9.3l8.3 8.3a2 2 0 0 1 0 2.8Z" fill="none" stroke="currentColor" stroke-width="2" />
+                <circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" />
+              </svg>
+              One-time purchase
+            </span>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-label="Photo Memory product preview">
+          <div class="laptop">
+            <div class="screen">
+              <div class="window-bar">
+                <span class="traffic"></span>
+                <span class="traffic"></span>
+                <span class="traffic"></span>
+              </div>
+              <div class="app">
+                <div class="search">
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" fill="none" stroke="#98a2b3" stroke-width="2" />
+                    <path d="m16 16 4 4" fill="none" stroke="#98a2b3" stroke-linecap="round" stroke-width="2" />
+                  </svg>
+                  <span>Mom birthday 2018</span>
+                </div>
+
+                <div class="stats">
+                  <div class="stat"><strong>42k</strong><span>photos</span></div>
+                  <div class="stat"><strong>3.4k</strong><span>duplicates</span></div>
+                  <div class="stat"><strong>2004</strong><span>oldest year</span></div>
+                  <div class="stat"><strong>2024</strong><span>latest year</span></div>
+                </div>
+
+                <div class="photo-grid">
+                  <div class="photo"><span class="tag">birthday</span></div>
+                  <div class="photo"><span class="tag">family</span></div>
+                  <div class="photo"><span class="tag">trip</span></div>
+                  <div class="photo"><span class="tag">kids</span></div>
+                  <div class="photo"><span class="tag">2018</span></div>
+                  <div class="photo"><span class="tag">archive</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="base"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap feature-strip" id="features">
+        <article class="feature">
+          <div class="icon">
+            <svg width="58" height="58" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 17.5A5 5 0 0 0 17 8h-1.3A7 7 0 0 0 2 10a5.5 5.5 0 0 0 3.5 10H18a4 4 0 0 0 0-8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6" />
+              <path d="m8 13 5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6" />
+            </svg>
+          </div>
+          <div>
+            <h3>No cloud upload</h3>
+            <p>Everything stays on your computer.</p>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="icon gold">
+            <svg width="58" height="58" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 7h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <rect x="9" y="12" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <path d="M10.5 12v-1a1.5 1.5 0 0 1 3 0v1" fill="none" stroke="currentColor" stroke-width="1.6" />
+            </svg>
+          </div>
+          <div>
+            <h3>Read-only scan</h3>
+            <p>We never change or move your files.</p>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="icon coral">
+            <svg width="58" height="58" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <path d="M12 16s-4-2.4-4-5a2.4 2.4 0 0 1 4-1.8A2.4 2.4 0 0 1 16 11c0 2.6-4 5-4 5Z" fill="currentColor" />
+            </svg>
+          </div>
+          <div>
+            <h3>Your photos stay yours</h3>
+            <p>Private, secure, and always in your control.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="wrap section">
+        <div class="cases">
+          <article class="case">
+            <div class="icon">
+              <svg width="46" height="46" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.7" />
+                <path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" />
+              </svg>
+            </div>
+            <div>
+              <h3>Search everywhere</h3>
+              <p>Drives, folders, exports.</p>
+            </div>
+          </article>
+
+          <article class="case">
+            <div class="icon gold">
+              <svg width="46" height="46" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 20V10h4v10M10 20V5h4v15M15 20v-8h4v8" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.7" />
+              </svg>
+            </div>
+            <div>
+              <h3>See archive health</h3>
+              <p>Dates, duplicates, gaps.</p>
+            </div>
+          </article>
+
+          <article class="case">
+            <div class="icon coral">
+              <svg width="46" height="46" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.7" />
+                <path d="m8.5 12 2.5 2.5L16 9" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" />
+              </svg>
+            </div>
+            <div>
+              <h3>Clean up safely</h3>
+              <p>Review before deleting.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="wrap pricing" id="waitlist">
+        <div class="price-copy">
+          <div class="spark">✦</div>
+          <p class="price">$49</p>
+          <p class="price-note">Local photo archive cleanup on your computer.</p>
+          <div class="prints" aria-hidden="true">
+            <div class="print"></div>
+            <div class="print"></div>
+            <div class="heart"></div>
+          </div>
+        </div>
+
+        <form
+          action="https://formspree.io/f/xdabgarj"
+          method="POST"
+          data-track="waitlist_submit"
+        >
+          <input type="hidden" name="_subject" value="New Photo Memory waitlist signup" />
+          <div>
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label for="archive_size">Archive size</label>
+            <input
+              id="archive_size"
+              name="archive_size"
+              type="text"
+              placeholder="Example: 25,000 photos across 3 drives"
+            />
+          </div>
+          <button class="button" type="submit" data-track="waitlist_button_click">
+            Request early access
+          </button>
+          <p class="fine-print">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="#f5a51b" stroke-width="2" />
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#f5a51b" stroke-width="2" />
+            </svg>
+            One-time purchase. No subscription.
+          </p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      &copy; 2026 Photo Memory. All rights reserved.
+    </footer>
+
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function track(eventName, detail) {
+        var payload = {
+          event: eventName,
+          detail: detail || {},
+          timestamp: new Date().toISOString()
+        };
+        window.dataLayer.push(payload);
+        window.dispatchEvent(new CustomEvent("pm:track", { detail: payload }));
+        if (window.console) {
+          console.info("track", payload);
+        }
+      }
+
+      document.addEventListener("click", function (event) {
+        var target = event.target.closest("[data-track]");
+        if (!target || target.tagName === "FORM") return;
+        track(target.dataset.track, {
+          label: target.textContent.trim(),
+          href: target.getAttribute("href")
+        });
+      });
+
+      document.addEventListener("submit", function (event) {
+        var form = event.target.closest("form[data-track]");
+        if (!form) return;
+        track(form.dataset.track, {
+          action: form.getAttribute("action"),
+          email_domain: form.email.value.split("@")[1] || ""
+        });
+      });
+
+      track("page_view", { path: window.location.pathname });
+    </script>
+  </body>
+</html>
