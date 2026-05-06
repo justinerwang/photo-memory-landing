@@ -487,8 +487,10 @@
         display: flex;
         height: 100%;
         flex-direction: column;
+        align-items: center;
         justify-content: center;
         align-self: stretch;
+        transform: translateY(-18px);
         text-align: left;
       }
 
@@ -512,7 +514,7 @@
 
       .price-list {
         max-width: 270px;
-        margin: 16px 0 0 0;
+        margin: 16px 0 0;
         padding-left: 1.2em;
         color: #233044;
         font-size: 1.22rem;
@@ -525,11 +527,25 @@
 
       form {
         display: grid;
-        gap: 16px;
+        gap: 22px;
         text-align: left;
       }
 
       label {
+        display: block;
+        margin: 0 0 8px;
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 800;
+      }
+
+      fieldset {
+        margin: 0;
+        border: 0;
+        padding: 0;
+      }
+
+      legend {
         display: block;
         margin: 0 0 8px;
         color: var(--ink);
@@ -548,6 +564,62 @@
         font: inherit;
         font-size: 1rem;
         box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
+      }
+
+      input[type="radio"] {
+        width: 18px;
+        min-height: 18px;
+        margin: 0;
+        accent-color: var(--orange);
+        box-shadow: none;
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        min-height: 18px;
+        margin: 0;
+        accent-color: var(--orange);
+        box-shadow: none;
+      }
+
+      .radio-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .radio-option {
+        display: flex;
+        min-height: 54px;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        border: 1px solid #d8dce3;
+        border-radius: 8px;
+        background: #fff;
+        padding: 0 14px;
+        color: #111827;
+        font-size: 1rem;
+        font-weight: 400;
+        box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
+      }
+
+      .radio-group.inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+      }
+
+      .radio-group.compact {
+        row-gap: 10px;
+      }
+
+      .radio-group.inline .radio-option {
+        min-height: 28px;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
       }
 
       form .button {
@@ -687,6 +759,10 @@
           min-height: 128px;
         }
 
+        .radio-group {
+          grid-template-columns: 1fr;
+        }
+
         .screen {
           border-width: 7px;
         }
@@ -719,7 +795,7 @@
     <header class="wrap nav">
       <div class="brand">Photo Memory</div>
       <nav class="nav-links" aria-label="Primary navigation">
-        <a href="#features" data-track="nav_features_click">How it works</a>
+        <a href="#features" data-track="nav_features_click">Features</a>
         <a class="button" href="#waitlist" data-track="nav_waitlist_click">Join early access</a>
       </nav>
     </header>
@@ -798,18 +874,6 @@
 
       <section class="wrap claims-grid" id="features" aria-label="How Photo Memory works">
         <article class="claim">
-          <div class="icon">
-            <svg width="46" height="46" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 6h6l2 2h8v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.7" />
-            </svg>
-          </div>
-          <div>
-            <h3>Choose folders</h3>
-            <p>Select local drives and exports.</p>
-          </div>
-        </article>
-
-        <article class="claim">
           <div class="icon gold">
             <svg width="46" height="46" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 3v18M3 12h18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" />
@@ -875,19 +939,6 @@
         </article>
 
         <article class="claim">
-          <div class="icon">
-            <svg width="58" height="58" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M18 17.5A5 5 0 0 0 17 8h-1.3A7 7 0 0 0 2 10a5.5 5.5 0 0 0 3.5 10H18a4 4 0 0 0 0-8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6" />
-              <path d="m8 13 5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6" />
-            </svg>
-          </div>
-          <div>
-            <h3>No cloud upload</h3>
-            <p>Everything stays on your computer.</p>
-          </div>
-        </article>
-
-        <article class="claim">
           <div class="icon coral">
             <svg width="58" height="58" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" fill="none" stroke="currentColor" stroke-width="1.6" />
@@ -928,21 +979,72 @@
               required
             />
           </div>
-          <div>
-            <label for="archive_size">Archive size</label>
-            <input
-              id="archive_size"
-              name="archive_size"
-              type="text"
-              placeholder="Example: 25,000 photos across 3 drives"
-            />
-          </div>
+          <fieldset>
+            <legend>Platform</legend>
+            <div class="radio-group inline">
+              <label class="radio-option">
+                <input type="radio" name="platform" value="Mac" />
+                Mac
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="platform" value="Windows" />
+                Windows
+              </label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Approximate photo count</legend>
+            <div class="radio-group inline">
+              <label class="radio-option">
+                <input type="radio" name="photo_count" value="Less than 5k" />
+                &lt;5k
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="photo_count" value="5k-20k" />
+                5k–20k
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="photo_count" value="20k-100k" />
+                20k–100k
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="photo_count" value="100k+" />
+                100k+
+              </label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Current Photo Storage</legend>
+            <div class="radio-group inline compact">
+              <label class="radio-option">
+                <input type="checkbox" name="photo_storage" value="Desktop/Laptop" />
+                Desktop/Laptop
+              </label>
+              <label class="radio-option">
+                <input type="checkbox" name="photo_storage" value="External drivers" />
+                External drivers
+              </label>
+              <label class="radio-option">
+                <input type="checkbox" name="photo_storage" value="Apple Photo" />
+                Apple Photo
+              </label>
+              <label class="radio-option">
+                <input type="checkbox" name="photo_storage" value="Google Photo" />
+                Google Photo
+              </label>
+              <label class="radio-option">
+                <input type="checkbox" name="photo_storage" value="Dropbox" />
+                Dropbox
+              </label>
+              <label class="radio-option">
+                <input type="checkbox" name="photo_storage" value="Prints & others" />
+                Prints &amp; others
+              </label>
+            </div>
+          </fieldset>
           <button class="button" type="submit" data-track="waitlist_button_click">
             Join early access
           </button>
-          <p class="form-note">
-            Join the waitlist for Photo Memory's early access.
-          </p>
           <p class="fine-print">
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="#f5a51b" stroke-width="2" />
