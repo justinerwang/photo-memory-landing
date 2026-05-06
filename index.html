@@ -10,6 +10,24 @@
 
       gtag('config', 'AW-18140194447');
     </script>
+    <!-- Event snippet for Submit lead form conversion page
+    In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+    <script>
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18140194447/JsUXCP-smagcEI_N9clD',
+          'value': 1.0,
+          'currency': 'USD',
+          'event_callback': callback
+      });
+      return false;
+    }
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Photo Memory - Local Photo Archive Search</title>
@@ -975,6 +993,9 @@
           action: form.getAttribute("action"),
           email_domain: form.email.value.split("@")[1] || ""
         });
+        if (typeof gtag_report_conversion === "function") {
+          gtag_report_conversion();
+        }
       });
 
       track("page_view", { path: window.location.pathname });
