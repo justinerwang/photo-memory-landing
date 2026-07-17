@@ -780,6 +780,19 @@
         margin-top: 2px;
       }
 
+      .beta-form .button:disabled {
+        cursor: wait;
+        opacity: 0.7;
+        box-shadow: none;
+      }
+
+      .form-error {
+        margin: 0;
+        color: #b42318;
+        font-size: 0.95rem;
+        line-height: 1.45;
+      }
+
       .form-note {
         text-align: left;
       }
@@ -815,6 +828,10 @@
         .beta-form input,
         select {
           border-color: #3b4d46;
+        }
+
+        .form-error {
+          color: #ffb4a6;
         }
 
         footer a {
@@ -1143,7 +1160,6 @@
           data-track="beta_submit"
         >
           <input type="hidden" name="_subject" value="New Photo Memory macOS beta signup" />
-          <input type="hidden" name="_next" value="https://photo-memory.app/thank-you.html" />
           <div>
             <label for="email">Email</label>
             <input
@@ -1169,6 +1185,7 @@
           <button class="button" type="submit" data-track="beta_button_click">
             Join Beta Access
           </button>
+          <p class="form-error" role="alert" hidden></p>
           <p class="form-note">
             Photo Memory is a macOS app. Your photos stay local and are never uploaded.
           </p>
@@ -1208,15 +1225,50 @@
         });
       });
 
-      document.addEventListener("submit", function (event) {
+      document.addEventListener("submit", async function (event) {
         var form = event.target.closest("form[data-track]");
         if (!form) return;
+        event.preventDefault();
+
+        var submitButton = form.querySelector('button[type="submit"]');
+        var errorMessage = form.querySelector(".form-error");
+        var submitLabel = submitButton.textContent;
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Joining...";
+        errorMessage.hidden = true;
+
         track(form.dataset.track, {
           action: form.getAttribute("action"),
           email_domain: form.email.value.split("@")[1] || ""
         });
-        if (typeof gtag_report_conversion === "function") {
-          gtag_report_conversion();
+
+        try {
+          var response = await fetch(form.action, {
+            method: form.method,
+            body: new FormData(form),
+            headers: { Accept: "application/json" }
+          });
+
+          if (!response.ok) {
+            var result = await response.json().catch(function () { return {}; });
+            var details = Array.isArray(result.errors)
+              ? result.errors.map(function (item) { return item.message; }).join(" ")
+              : "";
+            throw new Error(details || "We could not submit your request. Please try again.");
+          }
+
+          if (typeof gtag_report_conversion === "function") {
+            gtag_report_conversion("thank-you.html");
+          }
+          window.setTimeout(function () {
+            window.location.assign("thank-you.html");
+          }, 800);
+        } catch (error) {
+          errorMessage.textContent = error.message || "We could not submit your request. Please try again.";
+          errorMessage.hidden = false;
+          submitButton.disabled = false;
+          submitButton.textContent = submitLabel;
         }
       });
 
