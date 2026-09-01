@@ -5,6 +5,21 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18140194447"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
+
+      var PRODUCTION_API_BASE_URL = "https://api.photo-memory.app";
+      var STAGING_API_BASE_URL = "https://api-staging.photo-memory.app";
+      var betaState = {
+        submitting: false,
+        token: "",
+        widgetId: null
+      };
+
+      function apiBaseUrl() {
+        return window.location.hostname === "photo-memory.app" ||
+          window.location.hostname === "www.photo-memory.app"
+          ? PRODUCTION_API_BASE_URL
+          : STAGING_API_BASE_URL;
+      }
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
@@ -142,6 +157,17 @@
         background: var(--orange-dark);
       }
 
+      .button.secondary {
+        border: 1px solid var(--border-strong, #c9b995);
+        background: transparent;
+        color: var(--ink);
+        box-shadow: none;
+      }
+
+      .button.secondary:hover {
+        background: var(--soft);
+      }
+
       .button:active {
         transform: translateY(1px);
       }
@@ -184,6 +210,21 @@
         color: var(--body);
         font-size: clamp(1.08rem, 1.8vw, 1.25rem);
         line-height: 1.55;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .compatibility {
+        width: 100%;
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+        font-weight: 700;
       }
 
       .eyebrow {
@@ -786,11 +827,24 @@
         box-shadow: none;
       }
 
-      .form-error {
+      .form-status {
         margin: 0;
         color: #b42318;
         font-size: 0.95rem;
         line-height: 1.45;
+      }
+
+      .form-status.success {
+        color: var(--body);
+      }
+
+      .hero-kicker {
+        text-transform: none;
+        letter-spacing: 0.04em;
+      }
+
+      .turnstile-wrap {
+        min-height: 65px;
       }
 
       .form-note {
@@ -830,7 +884,7 @@
           border-color: #3b4d46;
         }
 
-        .form-error {
+        .form-status:not(.success) {
           color: #ffb4a6;
         }
 
@@ -1036,7 +1090,9 @@
         }
 
         .base {
+          width: 100%;
           height: 18px;
+          margin-left: 0;
         }
 
         .claim {
@@ -1075,19 +1131,35 @@
     <header class="wrap nav">
       <div class="brand">Photo Memory</div>
       <nav class="nav-links" aria-label="Primary navigation">
-        <a class="button" href="#beta" data-track="nav_beta_click">Join Beta Access</a>
+        <a href="#beta" data-track="nav_beta_click">Join Beta</a>
+        <a
+          class="button"
+          href="https://api.photo-memory.app/v1/downloads/latest"
+          data-download-path="/v1/downloads/latest"
+          data-track="nav_download_click"
+        >Download</a>
       </nav>
     </header>
 
     <main>
       <section class="wrap hero">
         <div class="hero-copy">
+          <p class="eyebrow hero-kicker">Public Beta &middot; macOS &middot; Apple Silicon</p>
           <h1>Years of photos, finally searchable</h1>
           <p class="lead">
             Search folders and external drives by date, location, person, and
             more. Find duplicates before you declutter. Everything stays on your Mac.
           </p>
-          <a class="button" href="#beta" data-track="hero_beta_click">Join Beta Access</a>
+          <div class="hero-actions">
+            <a
+              class="button"
+              href="https://api.photo-memory.app/v1/downloads/latest"
+              data-download-path="/v1/downloads/latest"
+              data-track="hero_download_click"
+            >Download for Mac - Free</a>
+            <a class="button secondary" href="#beta" data-track="hero_beta_click">Join Beta</a>
+            <p class="compatibility">Public Beta for macOS on Apple Silicon</p>
+          </div>
         </div>
 
         <div class="hero-art" aria-label="Photo Memory product preview">
@@ -1149,17 +1221,16 @@
         <div class="beta-copy">
           <h2>Join macOS beta</h2>
           <p>
-            Get an invitation. We will only use your email for Photo Memory
-            beta access and product updates.
+            Apply for unlimited beta access, early features, and closer feedback.
+            Your application stays pending until it is separately approved.
           </p>
         </div>
 
         <form class="beta-form"
-          action="https://formspree.io/f/xdabgarj"
           method="POST"
+          data-api-path="/v1/beta-signups"
           data-track="beta_submit"
         >
-          <input type="hidden" name="_subject" value="New Photo Memory macOS beta signup" />
           <div>
             <label for="email">Email</label>
             <input
@@ -1175,19 +1246,21 @@
             <label for="discovery_source">How did you hear about us?</label>
             <select id="discovery_source" name="discovery_source" required>
               <option value="" selected disabled>Select one</option>
-              <option value="Search">Search</option>
-              <option value="Social media">Social media</option>
-              <option value="Friend or colleague">Friend or colleague</option>
-              <option value="Article or newsletter">Article or newsletter</option>
-              <option value="Other">Other</option>
+              <option value="search">Search</option>
+              <option value="social_media">Social media</option>
+              <option value="friend_or_colleague">Friend or colleague</option>
+              <option value="article_or_newsletter">Article or newsletter</option>
+              <option value="other">Other</option>
             </select>
           </div>
+          <div class="turnstile-wrap" id="beta-turnstile" aria-label="Spam protection"></div>
           <button class="button" type="submit" data-track="beta_button_click">
-            Join Beta Access
+            Join Beta
           </button>
-          <p class="form-error" role="alert" hidden></p>
+          <p class="form-status" role="status" aria-live="polite" hidden></p>
           <p class="form-note">
-            Photo Memory is a macOS app. Your photos stay local and are never uploaded.
+            Applying does not grant beta access immediately. Your photos stay local and
+            are never uploaded.
           </p>
         </form>
       </section>
@@ -1225,52 +1298,155 @@
         });
       });
 
+      document.querySelectorAll("[data-download-path]").forEach(function (link) {
+        link.href = apiBaseUrl() + link.dataset.downloadPath;
+      });
+
+      initializeBetaForm();
+
+      async function initializeBetaForm() {
+        var form = document.querySelector("form[data-api-path]");
+        if (!form) return;
+        try {
+          var response = await fetch(apiBaseUrl() + form.dataset.apiPath + "/config", {
+            headers: { Accept: "application/json" }
+          });
+          if (!response.ok) throw new Error("configuration unavailable");
+          var config = await response.json();
+          if (!config.turnstileSiteKey) throw new Error("configuration unavailable");
+          await loadTurnstile();
+          betaState.widgetId = window.turnstile.render("#beta-turnstile", {
+            sitekey: config.turnstileSiteKey,
+            action: "beta_signup",
+            theme: "auto",
+            callback: function (token) {
+              betaState.token = token;
+            },
+            "expired-callback": function () {
+              betaState.token = "";
+              showFormStatus(form, "Verification expired. Please try again.");
+            },
+            "error-callback": function () {
+              betaState.token = "";
+              showFormStatus(form, "Verification could not load. Please try again.");
+            }
+          });
+        } catch {
+          showFormStatus(
+            form,
+            "Beta applications are temporarily unavailable. Please try again later."
+          );
+        }
+      }
+
+      function loadTurnstile() {
+        if (window.turnstile) return Promise.resolve();
+        return new Promise(function (resolve, reject) {
+          var script = document.createElement("script");
+          script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+          script.async = true;
+          script.defer = true;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
       document.addEventListener("submit", async function (event) {
         var form = event.target.closest("form[data-track]");
         if (!form) return;
         event.preventDefault();
 
+        if (betaState.submitting) return;
         var submitButton = form.querySelector('button[type="submit"]');
-        var errorMessage = form.querySelector(".form-error");
         var submitLabel = submitButton.textContent;
 
+        if (!betaState.token) {
+          showFormStatus(form, "Please complete the verification before applying.");
+          return;
+        }
+
+        betaState.submitting = true;
         submitButton.disabled = true;
-        submitButton.textContent = "Joining...";
-        errorMessage.hidden = true;
+        submitButton.textContent = "Applying...";
+        clearFormStatus(form);
 
         track(form.dataset.track, {
-          action: form.getAttribute("action"),
-          email_domain: form.email.value.split("@")[1] || ""
+          action: form.dataset.apiPath
         });
 
         try {
-          var response = await fetch(form.action, {
-            method: form.method,
-            body: new FormData(form),
-            headers: { Accept: "application/json" }
+          var query = new URLSearchParams(window.location.search);
+          var campaign = {};
+          if (query.get("utm_source")) campaign.source = query.get("utm_source");
+          if (query.get("utm_medium")) campaign.medium = query.get("utm_medium");
+          if (query.get("utm_campaign")) campaign.campaign = query.get("utm_campaign");
+          var response = await fetch(apiBaseUrl() + form.dataset.apiPath, {
+            method: "POST",
+            body: JSON.stringify({
+              email: form.email.value,
+              discoverySource: form.discovery_source.value,
+              campaign: campaign,
+              turnstileToken: betaState.token
+            }),
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json"
+            }
           });
 
           if (!response.ok) {
             var result = await response.json().catch(function () { return {}; });
-            var details = Array.isArray(result.errors)
-              ? result.errors.map(function (item) { return item.message; }).join(" ")
-              : "";
-            throw new Error(details || "We could not submit your request. Please try again.");
+            throw new Error(betaErrorMessage(result.error, response.status));
           }
 
           if (typeof gtag_report_conversion === "function") {
-            gtag_report_conversion("thank-you.html");
+            gtag_report_conversion();
           }
-          window.setTimeout(function () {
-            window.location.assign("thank-you.html");
-          }, 800);
+          showFormStatus(
+            form,
+            "Application received. We will email you separately if your beta access is approved.",
+            true
+          );
+          track("beta_submit_success");
         } catch (error) {
-          errorMessage.textContent = error.message || "We could not submit your request. Please try again.";
-          errorMessage.hidden = false;
+          showFormStatus(
+            form,
+            error.message || "We could not submit your application. Please try again."
+          );
+        } finally {
+          betaState.submitting = false;
           submitButton.disabled = false;
           submitButton.textContent = submitLabel;
+          betaState.token = "";
+          if (window.turnstile && betaState.widgetId !== null) {
+            window.turnstile.reset(betaState.widgetId);
+          }
         }
       });
+
+      function betaErrorMessage(error, status) {
+        if (status === 429) return "Too many attempts. Please wait and try again.";
+        if (error === "invalid_turnstile") {
+          return "Verification expired or was already used. Please try again.";
+        }
+        if (status === 400) return "Check your email and selection, then try again.";
+        return "Beta applications are temporarily unavailable. Please try again later.";
+      }
+
+      function clearFormStatus(form) {
+        var status = form.querySelector(".form-status");
+        status.hidden = true;
+        status.textContent = "";
+        status.classList.remove("success");
+      }
+
+      function showFormStatus(form, message, success) {
+        var status = form.querySelector(".form-status");
+        status.textContent = message;
+        status.hidden = false;
+        status.classList.toggle("success", Boolean(success));
+      }
 
       track("page_view", { path: window.location.pathname });
     </script>

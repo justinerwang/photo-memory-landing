@@ -1,0 +1,12 @@
+{
+  "name": "photo-memory-landing",
+  "private": true,
+  "scripts": {
+    "smoke": "npm run test:public-cta && npm run test:public-cta-browser",
+    "test:public-cta": "node scripts/test-public-cta.mjs",
+    "test:public-cta-browser": "node scripts/test-public-cta-browser.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

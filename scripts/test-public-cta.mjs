@@ -1,0 +1,55 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const html = readFileSync(resolve("index.html"), "utf8");
+const privacy = readFileSync(resolve("privacy.html"), "utf8");
+const packageJson = JSON.parse(readFileSync(resolve("package.json"), "utf8"));
+
+assert(
+  html.includes('href="https://api.photo-memory.app/v1/downloads/latest"'),
+  "Every production Download CTA must use the stable Worker endpoint"
+);
+assert(
+  packageJson.scripts.smoke.includes("npm run test:public-cta") &&
+    packageJson.scripts.smoke.includes("npm run test:public-cta-browser"),
+  "Canonical smoke must include static and rendered landing CTA coverage"
+);
+assert(!privacy.includes("Formspree"), "Privacy copy must not name the removed processor");
+assert(
+  privacy.includes("pending beta application") && privacy.includes("Cloudflare Turnstile"),
+  "Privacy copy must disclose pending beta applications and abuse prevention"
+);
+assert(
+  (html.match(/https:\/\/api\.photo-memory\.app\/v1\/downloads\/latest/g) ?? [])
+    .length >= 2,
+  "Navigation and hero must both expose the stable Download CTA"
+);
+assert(!html.includes("formspree.io"), "Join Beta must not submit to Formspree");
+assert(!html.includes("downloads.photo-memory.app/"), "Landing page must not embed an R2 artifact URL");
+for (const label of ["Download for Mac - Free", "Public Beta", "Apple Silicon", "macOS"]) {
+  assert(html.includes(label), `Landing page must show ${label}`);
+}
+assert(
+  html.includes('data-api-path="/v1/beta-signups"'),
+  "Join Beta must target Photo Memory's API"
+);
+assert(
+  html.includes('aria-live="polite"'),
+  "Join Beta status changes must use an accessible live region"
+);
+assert(
+  html.includes('action: "beta_signup"'),
+  "Turnstile must render with the beta_signup action"
+);
+assert(
+  html.includes('https://api-staging.photo-memory.app'),
+  "Local and staging QA must use the staging API without editing production constants"
+);
+
+console.log("Landing public CTA contract passed");
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
