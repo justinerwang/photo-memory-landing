@@ -9,6 +9,7 @@
       var PRODUCTION_API_BASE_URL = "https://api.photo-memory.app";
       var STAGING_API_BASE_URL = "https://api-staging.photo-memory.app";
       var betaState = {
+        ready: false,
         submitting: false,
         token: "",
         widgetId: null
@@ -1254,7 +1255,7 @@
             </select>
           </div>
           <div class="turnstile-wrap" id="beta-turnstile" aria-label="Spam protection"></div>
-          <button class="button" type="submit" data-track="beta_button_click">
+          <button class="button" type="submit" data-track="beta_button_click" disabled>
             Join Beta
           </button>
           <p class="form-status" role="status" aria-live="polite" hidden></p>
@@ -1327,12 +1328,16 @@
               showFormStatus(form, "Verification expired. Please try again.");
             },
             "error-callback": function () {
-              betaState.token = "";
-              showFormStatus(form, "Verification could not load. Please try again.");
+              disableBetaForm(
+                form,
+                "Beta applications are temporarily unavailable. Please try again later."
+              );
             }
           });
+          betaState.ready = true;
+          form.querySelector('button[type="submit"]').disabled = false;
         } catch {
-          showFormStatus(
+          disableBetaForm(
             form,
             "Beta applications are temporarily unavailable. Please try again later."
           );
@@ -1357,7 +1362,7 @@
         if (!form) return;
         event.preventDefault();
 
-        if (betaState.submitting) return;
+        if (betaState.submitting || !betaState.ready) return;
         var submitButton = form.querySelector('button[type="submit"]');
         var submitLabel = submitButton.textContent;
 
@@ -1416,7 +1421,7 @@
           );
         } finally {
           betaState.submitting = false;
-          submitButton.disabled = false;
+          submitButton.disabled = !betaState.ready;
           submitButton.textContent = submitLabel;
           betaState.token = "";
           if (window.turnstile && betaState.widgetId !== null) {
@@ -1439,6 +1444,13 @@
         status.hidden = true;
         status.textContent = "";
         status.classList.remove("success");
+      }
+
+      function disableBetaForm(form, message) {
+        betaState.ready = false;
+        betaState.token = "";
+        form.querySelector('button[type="submit"]').disabled = true;
+        showFormStatus(form, message);
       }
 
       function showFormStatus(form, message, success) {

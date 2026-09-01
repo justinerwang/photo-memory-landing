@@ -38,6 +38,7 @@ const consoleErrors = [];
 const networkEvents = [];
 const signupPayloads = [];
 let downloadEndpointRequests = 0;
+let configAvailable = true;
 let responseMode = "success";
 let pendingResolve = null;
 
@@ -82,10 +83,14 @@ await page.route(
 );
 await page.route("https://api-staging.photo-memory.app/v1/beta-signups/config", (route) =>
   route.fulfill({
-    status: 200,
+    status: configAvailable ? 200 : 503,
     contentType: "application/json",
     headers: { "access-control-allow-origin": origin },
-    body: JSON.stringify({ turnstileSiteKey: "test-site-key" })
+    body: JSON.stringify(
+      configAvailable
+        ? { turnstileSiteKey: "test-site-key" }
+        : { error: "beta_signup_unavailable" }
+    )
   })
 );
 await page.route("https://api-staging.photo-memory.app/v1/downloads/latest", (route) => {
@@ -247,6 +252,22 @@ try {
     return active ? getComputedStyle(active).outlineStyle : "none";
   });
   assert(outline !== "none", "Keyboard focus must remain visible");
+
+  configAvailable = false;
+  await page.reload({ waitUntil: "networkidle" });
+  const unavailableMessage =
+    "Beta applications are temporarily unavailable. Please try again later.";
+  await page.getByText(unavailableMessage, { exact: true }).waitFor();
+  const unavailableForm = page.locator("form[data-api-path]");
+  assert(
+    await unavailableForm.getByRole("button", { name: "Join Beta" }).isDisabled(),
+    "Submit must stay disabled when verification initialization fails"
+  );
+  await unavailableForm.evaluate((form) => form.requestSubmit());
+  assert(
+    (await unavailableForm.locator(".form-status").textContent()) === unavailableMessage,
+    "Submitting an unavailable form must preserve the initialization error"
+  );
   const unexpectedConsoleErrors = consoleErrors.filter(
     (message) => !message.includes("status of 503 (Service Unavailable)")
   );

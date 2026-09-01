@@ -17,3 +17,11 @@ Source: https://github.com/justinerwang/photo-memory/issues/332
 - [x] Add the Public Beta Apple Silicon download CTA through the stable API endpoint.
 - [x] Replace Formspree with an accessible Turnstile-backed beta application flow.
 - [x] Verify desktop and narrow layouts, keyboard behavior, response states, and console output.
+
+<!-- address-cr:2:start -->
+## PR #2 Review Follow-ups
+
+Source: https://github.com/justinerwang/photo-memory-landing/pull/2
+
+- [x] P2: Keep beta submission disabled and preserve the outage message when Turnstile initialization fails. (`index.html`, `scripts/test-public-cta-browser.mjs`)
+<!-- address-cr:2:end -->
