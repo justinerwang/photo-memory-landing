@@ -25,3 +25,11 @@ Source: https://github.com/justinerwang/photo-memory-landing/pull/2
 
 - [x] P2: Keep beta submission disabled and preserve the outage message when Turnstile initialization fails. (`index.html`, `scripts/test-public-cta-browser.mjs`)
 <!-- address-cr:2:end -->
+
+## Issue #3 Beta Signup Message Bubble
+
+Source: https://github.com/justinerwang/photo-memory-landing/issues/3
+
+- [x] Show successful beta signup submissions in an accessible transient bubble.
+- [x] Show beta signup submission failures in the same transient bubble.
+- [x] Verify dismissal timing, repeat submissions, and narrow viewport behavior.

@@ -12,7 +12,8 @@
         ready: false,
         submitting: false,
         token: "",
-        widgetId: null
+        widgetId: null,
+        toastTimer: null
       };
 
       function apiBaseUrl() {
@@ -67,6 +68,13 @@
         --gold: #f5a51b;
         --green: #ff5a45;
         --shadow: 0 22px 60px rgba(55, 45, 35, 0.14);
+        --space-lg: 16px;
+        --space-xl: 24px;
+        --space-2xl: 32px;
+        --radius-lg: 12px;
+        --status-positive: #176944;
+        --danger: #9f1239;
+        --shadow-popover: 0 10px 26px rgba(23, 32, 51, 0.12);
         --hero-visual-height: 450px;
       }
 
@@ -839,6 +847,31 @@
         color: var(--body);
       }
 
+      .beta-toast {
+        position: fixed;
+        right: var(--space-xl);
+        bottom: var(--space-xl);
+        z-index: 10;
+        width: min(420px, calc(100% - var(--space-2xl)));
+        border: 1px solid color-mix(in srgb, var(--status-positive) 45%, var(--paper));
+        border-radius: var(--radius-lg);
+        background: var(--paper);
+        padding: var(--space-lg);
+        color: var(--ink);
+        font-size: 0.95rem;
+        line-height: 1.45;
+        box-shadow: var(--shadow-popover);
+      }
+
+      .beta-toast.error {
+        border-color: color-mix(in srgb, var(--danger) 40%, var(--paper));
+        color: var(--danger);
+      }
+
+      .beta-toast[hidden] {
+        display: none;
+      }
+
       .hero-kicker {
         text-transform: none;
         letter-spacing: 0.04em;
@@ -1267,6 +1300,15 @@
       </section>
     </main>
 
+    <div
+      id="beta-toast"
+      class="beta-toast"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      hidden
+    ></div>
+
     <footer class="wrap">
       Contact: <a href="mailto:hello@contact.photo-memory.app">hello@contact.photo-memory.app</a>
       &middot; <a href="privacy.html">Privacy</a>
@@ -1375,6 +1417,7 @@
         submitButton.disabled = true;
         submitButton.textContent = "Applying...";
         clearFormStatus(form);
+        clearBetaToast();
 
         track(form.dataset.track, {
           action: form.dataset.apiPath
@@ -1408,16 +1451,15 @@
           if (typeof gtag_report_conversion === "function") {
             gtag_report_conversion();
           }
-          showFormStatus(
-            form,
-            "Application received. We will email you separately if your beta access is approved.",
-            true
+          showBetaToast(
+            "Request received. We will email you separately when beta access is granted.",
+            "success"
           );
           track("beta_submit_success");
         } catch (error) {
-          showFormStatus(
-            form,
-            error.message || "We could not submit your application. Please try again."
+          showBetaToast(
+            error.message || "We could not submit your application. Please try again.",
+            "error"
           );
         } finally {
           betaState.submitting = false;
@@ -1458,6 +1500,29 @@
         status.textContent = message;
         status.hidden = false;
         status.classList.toggle("success", Boolean(success));
+      }
+
+      function clearBetaToast() {
+        var toast = document.querySelector("#beta-toast");
+        if (betaState.toastTimer !== null) {
+          window.clearTimeout(betaState.toastTimer);
+          betaState.toastTimer = null;
+        }
+        toast.hidden = true;
+        toast.textContent = "";
+        toast.classList.remove("success", "error");
+      }
+
+      function showBetaToast(message, variant) {
+        var toast = document.querySelector("#beta-toast");
+        if (betaState.toastTimer !== null) {
+          window.clearTimeout(betaState.toastTimer);
+        }
+        toast.textContent = message;
+        toast.hidden = false;
+        toast.classList.toggle("success", variant === "success");
+        toast.classList.toggle("error", variant === "error");
+        betaState.toastTimer = window.setTimeout(clearBetaToast, 5_000);
       }
 
       track("page_view", { path: window.location.pathname });

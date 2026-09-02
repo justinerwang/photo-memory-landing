@@ -173,7 +173,8 @@ try {
   await form.locator("#discovery_source").selectOption("search");
   await form.getByRole("button", { name: "Join Beta" }).click();
   const successText =
-    "Application received. We will email you separately if your beta access is approved.";
+    "Request received. We will email you separately when beta access is granted.";
+  const toast = page.locator("#beta-toast");
   try {
     await page.getByText(successText, { exact: true }).waitFor({ timeout: 5_000 });
   } catch (error) {
@@ -183,9 +184,17 @@ try {
       `First signup did not succeed: requests=${signupPayloads.length}, ` +
         `status=${JSON.stringify(statusText)}, button=${JSON.stringify(buttonText)}, ` +
         `network=${JSON.stringify(networkEvents)}, console=${JSON.stringify(consoleErrors)}; ` +
-        `${error.message}`
+      `${error.message}`
     );
   }
+  assert(await toast.isVisible(), "Successful signup must show a visible message bubble");
+  assert(await toast.getAttribute("role") === "status", "Message bubble must expose status semantics");
+  assert(
+    (await toast.getAttribute("aria-live")) === "polite",
+    "Message bubble must announce submission results politely"
+  );
+  assert(await toast.evaluate((element) => element.classList.contains("success")),
+    "Successful signup must use success styling");
   assert(signupPayloads.length === 1, "One click must send one application");
   assert(
     JSON.stringify(signupPayloads[0]) === JSON.stringify({
@@ -197,10 +206,15 @@ try {
     `Unexpected signup payload: ${JSON.stringify(signupPayloads[0])}`
   );
 
+  await page.waitForTimeout(4_000);
   await waitForFreshTurnstileToken(page);
   await form.getByRole("button", { name: "Join Beta" }).click();
   await page.getByText(successText, { exact: true }).waitFor();
   assert(signupPayloads.length === 2, "A repeated application must receive the same flow");
+  await page.waitForTimeout(1_200);
+  assert(await toast.isVisible(), "A previous timer must not dismiss a newer signup bubble");
+  await page.waitForTimeout(3_900);
+  assert(await toast.isHidden(), "The newer signup bubble must dismiss after five seconds");
 
   await waitForFreshTurnstileToken(page);
   responseMode = "service-error";
@@ -210,6 +224,9 @@ try {
       exact: true
     })
     .waitFor();
+  assert(await toast.isVisible(), "Failed signup must show a visible message bubble");
+  assert(await toast.evaluate((element) => element.classList.contains("error")),
+    "Failed signup must use error styling");
   assert(
     (await form.locator("#email").inputValue()) === "person@example.com",
     "Server errors must preserve the email field"
@@ -231,6 +248,14 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: "networkidle" });
+  responseMode = "success";
+  const narrowForm = page.locator("form[data-api-path]");
+  await page.waitForFunction(() => Boolean(window.__turnstileOptions));
+  await narrowForm.locator("#email").fill("person@example.com");
+  await narrowForm.locator("#discovery_source").selectOption("search");
+  await narrowForm.getByRole("button", { name: "Join Beta" }).click();
+  await page.getByText(successText, { exact: true }).waitFor();
+  assert(await toast.isVisible(), "Signup bubble must remain visible at the narrow viewport");
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,

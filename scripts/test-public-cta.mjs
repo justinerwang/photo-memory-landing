@@ -38,6 +38,16 @@ assert(
   "Join Beta status changes must use an accessible live region"
 );
 assert(
+  html.includes('id="beta-toast"') && html.includes('class="beta-toast"'),
+  "Join Beta submission results must use the transient message bubble"
+);
+assert(
+  html.includes(
+    "Request received. We will email you separately when beta access is granted."
+  ),
+  "Join Beta success must use the approved access-grant copy"
+);
+assert(
   html.includes('action: "beta_signup"'),
   "Turnstile must render with the beta_signup action"
 );
