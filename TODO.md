@@ -50,3 +50,13 @@ Source: https://github.com/justinerwang/photo-memory-landing/issues/4
 - [x] Replace the beta introduction with the requested unlimited-indexing copy.
 - [x] Remove the immediate-access sentence while retaining the local-photo reassurance.
 - [x] Verify the updated copy in static and rendered landing tests.
+
+## Issue #7 Cloudflare Pages Preview
+
+Source: https://github.com/justinerwang/photo-memory-landing/issues/7
+
+- [x] Create a Git-connected Cloudflare Pages project for `main`.
+- [ ] Allow the stable Pages hostname through the staging API and Turnstile checks.
+- [ ] Verify the stable Pages deployment and an eligible pull-request preview.
+- [ ] Confirm beta signup remains pending-only and the staging download flow works.
+- [ ] Keep production DNS and GitHub Pages unchanged.
