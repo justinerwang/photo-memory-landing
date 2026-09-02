@@ -48,6 +48,20 @@ assert(
   "Join Beta success must use the approved access-grant copy"
 );
 assert(
+  html.includes("For unlimited photo indexing and early features."),
+  "Join Beta must use the concise unlimited-indexing introduction"
+);
+assert(
+  !html.includes("Apply for unlimited beta access, early features, and closer feedback.") &&
+    !html.includes("Your application stays pending until it is separately approved.") &&
+    !html.includes("Applying does not grant beta access immediately."),
+  "Join Beta must remove the superseded application copy"
+);
+assert(
+  html.includes("Your photos stay local and are never uploaded."),
+  "Join Beta must retain the local-photo reassurance"
+);
+assert(
   html.includes('action: "beta_signup"'),
   "Turnstile must render with the beta_signup action"
 );

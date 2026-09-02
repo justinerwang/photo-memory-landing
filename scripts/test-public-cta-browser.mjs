@@ -156,6 +156,18 @@ try {
   for (const text of ["Download for Mac - Free", "Public Beta", "Apple Silicon", "macOS"]) {
     assert(await page.getByText(text, { exact: false }).first().isVisible(), `${text} must be visible`);
   }
+  assert(
+    await page.getByText("For unlimited photo indexing and early features.", { exact: true }).isVisible(),
+    "The concise beta introduction must be visible"
+  );
+  assert(
+    await page.getByText("Your photos stay local and are never uploaded.", { exact: true }).isVisible(),
+    "The local-photo reassurance must remain visible"
+  );
+  assert(
+    (await page.getByText("Applying does not grant beta access immediately.", { exact: false }).count()) === 0,
+    "The superseded immediate-access sentence must not render"
+  );
   const downloadPromise = page.waitForEvent("download");
   await page.locator('[data-track="hero_download_click"]').click();
   const download = await downloadPromise;

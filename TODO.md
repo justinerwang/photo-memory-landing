@@ -42,3 +42,11 @@ Source: https://github.com/justinerwang/photo-memory-landing/pull/5
 - [x] P2: Keep the empty beta result live region mounted before inserting a message. (`index.html`, `scripts/test-public-cta-browser.mjs`)
 - [x] P2: Preserve accessible beta error-message contrast in dark mode. (`index.html`, `scripts/test-public-cta-browser.mjs`)
 <!-- address-cr:5:end -->
+
+## Issue #4 Beta Signup Copy
+
+Source: https://github.com/justinerwang/photo-memory-landing/issues/4
+
+- [x] Replace the beta introduction with the requested unlimited-indexing copy.
+- [x] Remove the immediate-access sentence while retaining the local-photo reassurance.
+- [x] Verify the updated copy in static and rendered landing tests.
