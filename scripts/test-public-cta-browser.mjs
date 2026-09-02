@@ -169,12 +169,16 @@ try {
   );
 
   const form = page.locator("form[data-api-path]");
+  const toast = page.locator("#beta-toast");
+  assert(
+    (await toast.getAttribute("hidden")) === null && (await toast.textContent()) === "",
+    "The empty signup live region must stay mounted before a result is announced"
+  );
   await form.locator("#email").fill("person@example.com");
   await form.locator("#discovery_source").selectOption("search");
   await form.getByRole("button", { name: "Join Beta" }).click();
   const successText =
     "Request received. We will email you separately when beta access is granted.";
-  const toast = page.locator("#beta-toast");
   try {
     await page.getByText(successText, { exact: true }).waitFor({ timeout: 5_000 });
   } catch (error) {
@@ -214,7 +218,11 @@ try {
   await page.waitForTimeout(1_200);
   assert(await toast.isVisible(), "A previous timer must not dismiss a newer signup bubble");
   await page.waitForTimeout(3_900);
-  assert(await toast.isHidden(), "The newer signup bubble must dismiss after five seconds");
+  assert(
+    (await toast.textContent()) === "" &&
+      !(await toast.evaluate((element) => element.classList.contains("success"))),
+    "The newer signup bubble must dismiss after five seconds"
+  );
 
   await waitForFreshTurnstileToken(page);
   responseMode = "service-error";
@@ -227,6 +235,24 @@ try {
   assert(await toast.isVisible(), "Failed signup must show a visible message bubble");
   assert(await toast.evaluate((element) => element.classList.contains("error")),
     "Failed signup must use error styling");
+  await page.emulateMedia({ colorScheme: "dark" });
+  const darkErrorContrast = await toast.evaluate((element) => {
+    const parseRgb = (value) => value.match(/\d+(?:\.\d+)?/g).slice(0, 3).map(Number);
+    const luminance = (rgb) => {
+      const channels = rgb.map((channel) => {
+        const value = channel / 255;
+        return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+      });
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    };
+    const styles = getComputedStyle(element);
+    const foreground = luminance(parseRgb(styles.color));
+    const background = luminance(parseRgb(styles.backgroundColor));
+    return (Math.max(foreground, background) + 0.05) /
+      (Math.min(foreground, background) + 0.05);
+  });
+  assert(darkErrorContrast >= 4.5, `Dark-mode error contrast must meet WCAG AA: ${darkErrorContrast}`);
+  await page.emulateMedia({ colorScheme: "light" });
   assert(
     (await form.locator("#email").inputValue()) === "person@example.com",
     "Server errors must preserve the email field"

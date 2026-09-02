@@ -861,15 +861,18 @@
         font-size: 0.95rem;
         line-height: 1.45;
         box-shadow: var(--shadow-popover);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .beta-toast.success,
+      .beta-toast.error {
+        opacity: 1;
       }
 
       .beta-toast.error {
         border-color: color-mix(in srgb, var(--danger) 40%, var(--paper));
         color: var(--danger);
-      }
-
-      .beta-toast[hidden] {
-        display: none;
       }
 
       .hero-kicker {
@@ -906,6 +909,7 @@
           --paper: #22211e;
           --line: #493a30;
           --soft: #2a2520;
+          --danger: #ffb4a6;
           --shadow: 0 22px 60px rgba(0, 0, 0, 0.3);
         }
 
@@ -1306,7 +1310,6 @@
       role="status"
       aria-live="polite"
       aria-atomic="true"
-      hidden
     ></div>
 
     <footer class="wrap">
@@ -1508,7 +1511,6 @@
           window.clearTimeout(betaState.toastTimer);
           betaState.toastTimer = null;
         }
-        toast.hidden = true;
         toast.textContent = "";
         toast.classList.remove("success", "error");
       }
@@ -1519,7 +1521,6 @@
           window.clearTimeout(betaState.toastTimer);
         }
         toast.textContent = message;
-        toast.hidden = false;
         toast.classList.toggle("success", variant === "success");
         toast.classList.toggle("error", variant === "error");
         betaState.toastTimer = window.setTimeout(clearBetaToast, 5_000);
