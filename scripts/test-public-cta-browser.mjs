@@ -159,6 +159,11 @@ try {
   const heroScreenshot = page.locator(".hero-screenshot");
   assert(await heroScreenshot.isVisible(), "Approved Search screenshot must be visible in the hero");
   assert(
+    await page.locator(".hero-preview").evaluate((preview) => getComputedStyle(preview).transform) ===
+      "none",
+    "Hero screenshot frame must align with the page without rotation"
+  );
+  assert(
     await heroScreenshot.getAttribute("alt") ===
       "Photo Memory search results for Jamie at Cannon Beach in 2023",
     "Hero screenshot must describe its visible search context"
