@@ -280,6 +280,24 @@ try {
       (Math.min(foreground, background) + 0.05);
   });
   assert(darkErrorContrast >= 4.5, `Dark-mode error contrast must meet WCAG AA: ${darkErrorContrast}`);
+  const darkHeroNoteContrast = await page.locator(".hero-preview-note strong").evaluate((element) => {
+    const parseRgb = (value) => value.match(/\d+(?:\.\d+)?/g).slice(0, 3).map(Number);
+    const luminance = (rgb) => {
+      const channels = rgb.map((channel) => {
+        const value = channel / 255;
+        return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+      });
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    };
+    const foreground = luminance(parseRgb(getComputedStyle(element).color));
+    const background = luminance(parseRgb(getComputedStyle(element.parentElement).backgroundColor));
+    return (Math.max(foreground, background) + 0.05) /
+      (Math.min(foreground, background) + 0.05);
+  });
+  assert(
+    darkHeroNoteContrast >= 4.5,
+    `Dark-mode hero note contrast must meet WCAG AA: ${darkHeroNoteContrast}`
+  );
   await page.emulateMedia({ colorScheme: "light" });
   assert(
     (await form.locator("#email").inputValue()) === "person@example.com",

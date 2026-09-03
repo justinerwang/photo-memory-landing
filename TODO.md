@@ -68,3 +68,11 @@ Source: https://github.com/justinerwang/photo-memory-landing/pull/11
 
 - [x] P2: Clarify that pull-request previews verify static deployment while the exact stable Pages hostname is the staging integration acceptance surface. (`CLOUDFLARE_PAGES_MIGRATION.md`)
 <!-- address-cr:11:end -->
+
+<!-- address-cr:12:start -->
+## PR #12 Review Follow-ups
+
+Source: https://github.com/justinerwang/photo-memory-landing/pull/12
+
+- [x] P2: Use a theme-aware hero-note background with WCAG AA dark-mode contrast. (`index.html`, `scripts/test-public-cta-browser.mjs`)
+<!-- address-cr:12:end -->
