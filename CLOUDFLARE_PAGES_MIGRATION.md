@@ -105,7 +105,6 @@ References:
    - `/`
    - `/privacy.html`
    - `/terms.html`
-   - `/thank-you.html`
    - `/upgrade-thank-you.html`
 3. Confirm there are no browser console errors or failed static assets.
 4. Compare the rendered page with the current production site at desktop and

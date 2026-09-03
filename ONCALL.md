@@ -41,7 +41,7 @@ so test production API behavior separately after merging when needed.
 ```
 
 The apex should return `200`. The `www` hostname should return a permanent
-redirect to the apex. Also check `/privacy`, `/terms`, `/thank-you`, and
+redirect to the apex. Also check `/privacy`, `/terms`, and
 `/upgrade-thank-you` after a production deployment.
 
 ## Incident Notes

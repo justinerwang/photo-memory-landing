@@ -28,7 +28,8 @@ assert(
 );
 assert(!privacy.includes("Formspree"), "Privacy copy must not name the removed processor");
 assert(
-  privacy.includes("pending beta application") && privacy.includes("Cloudflare Turnstile"),
+  privacy.includes("pending beta application") && privacy.includes("protect the application form from") &&
+    privacy.includes("abuse"),
   "Privacy copy must disclose pending beta applications and abuse prevention"
 );
 assert(
