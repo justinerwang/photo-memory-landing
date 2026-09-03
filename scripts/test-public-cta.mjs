@@ -1,9 +1,21 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const html = readFileSync(resolve("index.html"), "utf8");
 const privacy = readFileSync(resolve("privacy.html"), "utf8");
 const packageJson = JSON.parse(readFileSync(resolve("package.json"), "utf8"));
+const heroScreenshotPath = resolve("assets/search-jamie-cannon-beach.webp");
+
+assert(existsSync(heroScreenshotPath), "Landing hero screenshot asset must exist");
+assert(
+  html.includes('src="assets/search-jamie-cannon-beach.webp"'),
+  "Landing hero must use the approved Jamie search screenshot"
+);
+assert(
+  html.includes('alt="Photo Memory search results for Jamie at Cannon Beach in 2023"'),
+  "Landing hero screenshot must describe the visible search result"
+);
+assert(!html.includes('class="photo-grid"'), "Synthetic hero photo tiles must be removed");
 
 assert(
   html.includes('href="https://api.photo-memory.app/v1/downloads/latest"'),

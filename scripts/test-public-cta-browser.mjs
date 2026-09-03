@@ -156,6 +156,17 @@ try {
   for (const text of ["Download for Mac - Free", "Public Beta", "Apple Silicon", "macOS"]) {
     assert(await page.getByText(text, { exact: false }).first().isVisible(), `${text} must be visible`);
   }
+  const heroScreenshot = page.locator(".hero-screenshot");
+  assert(await heroScreenshot.isVisible(), "Approved Search screenshot must be visible in the hero");
+  assert(
+    await heroScreenshot.getAttribute("alt") ===
+      "Photo Memory search results for Jamie at Cannon Beach in 2023",
+    "Hero screenshot must describe its visible search context"
+  );
+  assert(
+    await heroScreenshot.evaluate((image) => image.complete && image.naturalWidth === 1586),
+    "Hero screenshot must load at its expected source width"
+  );
   assert(
     await page.getByText("For unlimited photo indexing and early features.", { exact: true }).isVisible(),
     "The concise beta introduction must be visible"
@@ -287,6 +298,10 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: "networkidle" });
   responseMode = "success";
+  assert(
+    await page.locator(".hero-screenshot").isVisible(),
+    "Hero screenshot must remain visible at the narrow viewport"
+  );
   const narrowForm = page.locator("form[data-api-path]");
   await page.waitForFunction(() => Boolean(window.__turnstileOptions));
   await narrowForm.locator("#email").fill("person@example.com");

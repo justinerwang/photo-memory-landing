@@ -250,183 +250,77 @@
         min-height: var(--hero-visual-height);
       }
 
-      .laptop {
+      .hero-preview {
         position: absolute;
-        right: -24px;
         top: 0;
+        right: -24px;
         width: min(720px, 100%);
-      }
-
-      @media (min-width: 981px) {
-        .laptop {
-          transform: scale(0.78);
-          transform-origin: top right;
-        }
-      }
-
-      .screen {
-        border: 11px solid #d8d4cf;
-        border-radius: 22px 22px 12px 12px;
-        background: #fbfaf8;
-        box-shadow: var(--shadow);
         overflow: hidden;
+        border: 1px solid #d8d4cf;
+        border-radius: var(--radius-lg);
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        transform: rotate(1deg);
       }
 
-      .window-bar {
+      .hero-window-bar {
         display: flex;
-        gap: 8px;
-        padding: 25px 24px 17px;
+        gap: 7px;
+        align-items: center;
+        height: 36px;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--line);
+        background: #f8f3ed;
       }
 
-      .traffic {
-        width: 11px;
-        height: 11px;
+      .hero-window-dot {
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         background: var(--orange);
       }
 
-      .traffic:nth-child(2) {
+      .hero-window-dot:nth-child(2) {
         background: #f6af29;
       }
 
-      .traffic:nth-child(3) {
+      .hero-window-dot:nth-child(3) {
         background: #56b865;
       }
 
-      .app {
-        padding: 0 28px 28px;
+      .hero-screenshot {
+        display: block;
+        width: 100%;
+        height: auto;
       }
 
-      .search {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        height: 54px;
-        border: 1px solid #e3e5e8;
-        border-radius: 9px;
-        background: #fff;
-        padding: 0 18px;
-        color: #1f2937;
-        font-size: 1.05rem;
+      .hero-preview-note {
+        position: absolute;
+        right: -14px;
+        bottom: 10px;
+        width: 232px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: var(--shadow-popover);
+        padding: var(--space-lg);
       }
 
-      .search svg,
+      .hero-preview-note strong {
+        display: block;
+        margin-bottom: var(--space-xs);
+        color: var(--ink);
+        line-height: 1.2;
+      }
+
+      .hero-preview-note span {
+        color: var(--body);
+        font-size: 0.88rem;
+        line-height: 1.35;
+      }
+
       .icon svg {
         flex: 0 0 auto;
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 11px;
-        margin: 16px 0;
-      }
-
-      .stat {
-        border: 1px solid #ece1d7;
-        border-radius: 9px;
-        background: #fff;
-        padding: 14px 17px;
-      }
-
-      .stat strong {
-        display: block;
-        color: #111827;
-        font-size: 1.35rem;
-        line-height: 1;
-      }
-
-      .stat span {
-        color: #111827;
-        font-size: 0.82rem;
-      }
-
-      .photo-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-      }
-
-      .photo {
-        position: relative;
-        min-height: 154px;
-        border-radius: 9px;
-        overflow: hidden;
-        background: #ddd;
-      }
-
-      .photo::before,
-      .photo::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-      }
-
-      .photo::before {
-        background:
-          radial-gradient(circle at 44% 24%, #593012 0 12%, transparent 12.4%),
-          radial-gradient(circle at 62% 27%, #6c3c1e 0 11%, transparent 11.4%),
-          radial-gradient(circle at 45% 64%, #f8bd73 0 27%, transparent 27.4%),
-          radial-gradient(circle at 62% 64%, #ffc780 0 28%, transparent 28.4%),
-          linear-gradient(140deg, #46351a, #f7a94f 55%, #542a19);
-      }
-
-      .photo::after {
-        background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.28));
-      }
-
-      .photo:nth-child(2)::before {
-        background:
-          radial-gradient(circle at 46% 28%, #674228 0 11%, transparent 11.5%),
-          radial-gradient(circle at 66% 29%, #8d5537 0 10%, transparent 10.5%),
-          radial-gradient(circle at 32% 32%, #895b40 0 9%, transparent 9.5%),
-          linear-gradient(135deg, #eec477, #8db86f 58%, #6d7f43);
-      }
-
-      .photo:nth-child(3)::before {
-        background:
-          radial-gradient(circle at 60% 38%, #39534a 0 8%, transparent 8.5%),
-          radial-gradient(circle at 34% 35%, #f1c577 0 9%, transparent 9.5%),
-          linear-gradient(135deg, #a8d2dc 0 36%, #d8d19a 36% 58%, #537b6d 58%);
-      }
-
-      .photo:nth-child(4)::before {
-        background:
-          radial-gradient(circle at 38% 27%, #d9a06d 0 9%, transparent 9.5%),
-          radial-gradient(circle at 63% 24%, #e0ad73 0 9%, transparent 9.5%),
-          linear-gradient(135deg, #edf0bb, #8fb76a 54%, #d1aa65);
-      }
-
-      .photo:nth-child(5)::before {
-        background: linear-gradient(180deg, #f5a25d 0 37%, #ffd9a0 37% 52%, #a8583b 52%);
-      }
-
-      .photo:nth-child(6)::before {
-        background:
-          linear-gradient(18deg, transparent 0 38%, rgba(255, 255, 255, 0.78) 38% 61%, transparent 61%),
-          linear-gradient(155deg, #2f1d13, #a56f38 48%, #25180f);
-      }
-
-      .tag {
-        position: absolute;
-        left: 9px;
-        bottom: 9px;
-        z-index: 1;
-        border-radius: 999px;
-        background: #fff;
-        padding: 8px 10px;
-        color: #111827;
-        font-size: 0.78rem;
-        font-weight: 800;
-      }
-
-      .base {
-        width: 118%;
-        height: 30px;
-        margin: 0 0 0 -9%;
-        border-radius: 0 0 50% 50%;
-        background: linear-gradient(180deg, #d7d8d7, #9ea3a4 54%, #e4e5e3);
-        box-shadow: 0 10px 18px rgba(0, 0, 0, 0.22);
       }
 
       .pills {
@@ -957,10 +851,15 @@
           white-space: normal;
         }
 
-        .laptop {
+        .hero-preview {
           position: relative;
           right: auto;
           width: 100%;
+          transform: none;
+        }
+
+        .hero-preview-note {
+          right: var(--space-lg);
         }
 
         .claims-grid {
@@ -1021,7 +920,7 @@
           min-height: 400px;
         }
 
-        .laptop {
+        .hero-preview {
           position: absolute;
           right: 0;
           width: 135%;
@@ -1065,72 +964,21 @@
           padding: 32px 0 44px;
         }
 
-        .stats {
-          grid-template-columns: repeat(4, 1fr);
-          gap: 5px;
-          margin: 8px 0;
-        }
-
-        .stat {
-          padding: 8px 6px;
-        }
-
-        .stat strong {
-          font-size: 0.9rem;
-        }
-
-        .stat span {
-          font-size: 0.6rem;
-        }
-
-        .photo-grid {
-          grid-template-columns: repeat(3, 1fr);
-          gap: 6px;
-        }
-
-        .photo {
-          min-height: 72px;
-        }
-
-        .tag {
-          left: 5px;
-          bottom: 5px;
-          padding: 4px 6px;
-          font-size: 0.6rem;
-        }
-
         .radio-group {
           grid-template-columns: 1fr;
         }
 
-        .screen {
-          border-width: 5px;
+        .hero-window-bar {
+          height: 28px;
         }
 
-        .window-bar {
-          gap: 6px;
-          padding: 14px 14px 10px;
-        }
-
-        .traffic {
+        .hero-window-dot {
           width: 8px;
           height: 8px;
         }
 
-        .app {
-          padding: 0 10px 12px;
-        }
-
-        .search {
-          height: 42px;
-          padding: 0 12px;
-          font-size: 0.85rem;
-        }
-
-        .base {
-          width: 100%;
-          height: 18px;
-          margin-left: 0;
+        .hero-preview-note {
+          display: none;
         }
 
         .claim {
@@ -1200,41 +1048,24 @@
           </div>
         </div>
 
-        <div class="hero-art" aria-label="Photo Memory product preview">
-          <div class="laptop">
-            <div class="screen">
-              <div class="window-bar">
-                <span class="traffic"></span>
-                <span class="traffic"></span>
-                <span class="traffic"></span>
-              </div>
-              <div class="app">
-                <div class="search">
-                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7" fill="none" stroke="#98a2b3" stroke-width="2" />
-                    <path d="m16 16 4 4" fill="none" stroke="#98a2b3" stroke-linecap="round" stroke-width="2" />
-                  </svg>
-                  <span>Mom birthday 2018</span>
-                </div>
-
-                <div class="stats">
-                  <div class="stat"><strong>Local</strong><span>index</span></div>
-                  <div class="stat"><strong>Private</strong><span>by default</span></div>
-                  <div class="stat"><strong>Read-only</strong><span>scan</span></div>
-                  <div class="stat"><strong>macOS</strong><span>desktop app</span></div>
-                </div>
-
-                <div class="photo-grid">
-                  <div class="photo"><span class="tag">birthday</span></div>
-                  <div class="photo"><span class="tag">family</span></div>
-                  <div class="photo"><span class="tag">trip</span></div>
-                  <div class="photo"><span class="tag">kids</span></div>
-                  <div class="photo"><span class="tag">2018</span></div>
-                  <div class="photo"><span class="tag">archive</span></div>
-                </div>
-              </div>
+        <div class="hero-art">
+          <div class="hero-preview">
+            <div class="hero-window-bar" aria-hidden="true">
+              <span class="hero-window-dot"></span>
+              <span class="hero-window-dot"></span>
+              <span class="hero-window-dot"></span>
             </div>
-            <div class="base"></div>
+            <img
+              class="hero-screenshot"
+              src="assets/search-jamie-cannon-beach.webp"
+              width="1586"
+              height="992"
+              alt="Photo Memory search results for Jamie at Cannon Beach in 2023"
+            />
+          </div>
+          <div class="hero-preview-note">
+            <strong>Search what you remember</strong>
+            <span>Filter by date, place, person, media type, or source.</span>
           </div>
         </div>
       </section>
