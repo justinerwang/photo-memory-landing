@@ -71,6 +71,12 @@ Cloudflare's native GitHub integration is the preferred steady-state deployment
 mechanism because it deploys pushes to `main`, reports checks in GitHub, and
 creates preview deployments for eligible pull requests.
 
+The stable `photo-memory-landing.pages.dev` hostname is the staging integration
+acceptance surface. It is explicitly allowlisted by the staging API and
+Turnstile widget. Branch- and deployment-specific Pages hostnames verify the
+static build, routes, and rendering only; do not widen CORS or Turnstile to a
+wildcard preview origin.
+
 If rollout must remain entirely CLI-driven, use a GitHub Actions workflow that
 runs `wrangler pages deploy`. Store a narrowly scoped Cloudflare API token and
 account identifier as GitHub Actions secrets. This alternative adds workflow and
@@ -92,7 +98,7 @@ References:
 3. Do not attach the production domains yet.
 4. Confirm the first `main` deployment succeeds at its `*.pages.dev` address.
 
-### 2. Validate the preview deployment
+### 2. Validate the stable preview deployment
 
 1. Run `npm run smoke` against the checked-out production commit.
 2. Verify these Pages routes:
@@ -109,6 +115,11 @@ References:
    pending application.
 7. Verify the download action follows the stable staging API endpoint to the
    expected artifact.
+
+For an eligible pull request, separately confirm that Cloudflare reports a
+successful preview deployment and that its static routes render. Run the
+staging API, Turnstile, signup, and download checks on the stable project
+hostname above.
 
 ### 3. Prepare the production cutover
 

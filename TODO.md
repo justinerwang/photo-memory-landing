@@ -56,7 +56,15 @@ Source: https://github.com/justinerwang/photo-memory-landing/issues/4
 Source: https://github.com/justinerwang/photo-memory-landing/issues/7
 
 - [x] Create a Git-connected Cloudflare Pages project for `main`.
-- [ ] Allow the stable Pages hostname through the staging API and Turnstile checks.
-- [ ] Verify the stable Pages deployment and an eligible pull-request preview.
+- [x] Allow the stable Pages hostname through the staging API and Turnstile checks.
+- [x] Verify the stable Pages deployment and an eligible pull-request preview.
 - [ ] Confirm beta signup remains pending-only and the staging download flow works.
-- [ ] Keep production DNS and GitHub Pages unchanged.
+- [x] Keep production DNS and GitHub Pages unchanged.
+
+<!-- address-cr:11:start -->
+## PR #11 Review Follow-ups
+
+Source: https://github.com/justinerwang/photo-memory-landing/pull/11
+
+- [x] P2: Clarify that pull-request previews verify static deployment while the exact stable Pages hostname is the staging integration acceptance surface. (`CLOUDFLARE_PAGES_MIGRATION.md`)
+<!-- address-cr:11:end -->
