@@ -1,13 +1,14 @@
 # Cloudflare Pages Hosting Migration
 
-Status: Approved plan
-Date: 2026-09-02
+Status: Cloudflare Pages in production; GitHub Pages disabled
+Plan date: 2026-09-02
+Retirement status verified: 2026-09-20
 
 ## Objective
 
-Move `photo-memory.app` landing-page hosting from GitHub Pages to Cloudflare
-Pages while retaining GitHub as the source repository, pull-request system, and
-deployment trigger.
+Cloudflare Pages hosts `photo-memory.app`. GitHub remains the source repository,
+pull-request system, and deployment trigger. This document records the final
+hosting configuration, the historical migration sequence, and recovery steps.
 
 ```text
 GitHub repository
@@ -44,21 +45,23 @@ References:
 
 - GitHub repository: `justinerwang/photo-memory-landing`
 - Production branch: `main`
-- GitHub Pages publishes the repository root through its legacy branch-based
-  build.
-- `CNAME` configures `photo-memory.app` for GitHub Pages.
+- Production host: Cloudflare Pages project `photo-memory-landing`.
+- GitHub Pages hosting is disabled (`has_pages: false`, verified 2026-09-20).
+- The obsolete GitHub Pages `CNAME` file has been removed. Cloudflare custom
+  domains and DNS control production routing; a repository `CNAME` is not needed.
 - The domain already uses Cloudflare nameservers.
 - The site is plain static HTML with no application build step.
 - `npm run smoke` is the canonical static and rendered browser verification.
 - `photo-memory.app` and `www.photo-memory.app` use the production API. Other
   hosts, including `*.pages.dev` previews, intentionally use the staging API.
 
-## Target configuration
+## Production configuration
 
-Create a Cloudflare Pages project with these settings:
+The Cloudflare Pages configuration is:
 
 | Setting | Value |
 | --- | --- |
+| Project | `photo-memory-landing` |
 | Repository | `justinerwang/photo-memory-landing` |
 | Production branch | `main` |
 | Framework preset | None |
@@ -67,9 +70,9 @@ Create a Cloudflare Pages project with these settings:
 | Pages Functions | None |
 | Production domains | `photo-memory.app`, `www.photo-memory.app` |
 
-Cloudflare's native GitHub integration is the preferred steady-state deployment
-mechanism because it deploys pushes to `main`, reports checks in GitHub, and
-creates preview deployments for eligible pull requests.
+Cloudflare's native GitHub integration deploys pushes to `main`, reports checks
+in GitHub, and creates preview deployments for eligible pull requests. Retiring
+GitHub Pages does not remove this integration or change repository access.
 
 The stable `photo-memory-landing.pages.dev` hostname is the staging integration
 acceptance surface. It is explicitly allowlisted by the staging API and
@@ -77,18 +80,16 @@ Turnstile widget. Branch- and deployment-specific Pages hostnames verify the
 static build, routes, and rendering only; do not widen CORS or Turnstile to a
 wildcard preview origin.
 
-If rollout must remain entirely CLI-driven, use a GitHub Actions workflow that
-runs `wrangler pages deploy`. Store a narrowly scoped Cloudflare API token and
-account identifier as GitHub Actions secrets. This alternative adds workflow and
-credential-management overhead and must be selected when the Pages project is
-created so the automation path is unambiguous from the first deployment.
 
 References:
 
 - [Deploy a static HTML site](https://developers.cloudflare.com/pages/framework-guides/deploy-anything/)
 - [Cloudflare Pages GitHub integration](https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/)
 
-## Migration sequence
+## Historical migration sequence
+
+These steps describe the original cutover and soak. GitHub Pages is now disabled;
+do not re-enable it unless following the explicit fallback below.
 
 ### 1. Create the Pages project
 
@@ -171,16 +172,56 @@ After the soak period passes:
 
 ## Rollback
 
-During the soak window:
+### Recover a bad Cloudflare deployment
 
-1. Restore the recorded DNS records that routed the domain to GitHub Pages.
-2. Confirm `photo-memory.app` serves the prior production site.
-3. Investigate the Pages deployment without deleting it.
+1. Open Cloudflare **Workers & Pages → photo-memory-landing → Deployments**.
+2. Select a previous successful **production** deployment whose commit is known
+   to work, and use **Rollback to this deployment**. Preview deployments are not
+   production rollback targets.
+3. Verify the apex, permanent `www` redirect, valid HTTPS, legal pages, signup,
+   download, and analytics using the production checks above.
+4. Revert or fix the bad source change through a reviewed GitHub pull request.
+   A dashboard rollback changes the served deployment, not Git history; a later
+   push to `main` can deploy the bad code again if it is still in the branch.
 
-After GitHub Pages has been disabled, rollback requires re-enabling GitHub Pages,
-restoring its custom domain if necessary, and restoring the previous DNS records.
-Because changing a custom domain away from Pages can deactivate it, verify the
-Pages custom-domain status again before attempting a later cutover.
+This recovery keeps the Cloudflare custom domains, DNS, and GitHub integration.
+It does not roll back the separate API Worker, database, or download artifacts.
+
+Reference: [Cloudflare Pages rollbacks](https://developers.cloudflare.com/pages/configuration/rollbacks/)
+
+### Fall back to GitHub Pages hosting
+
+Use this only when Cloudflare hosting itself must be replaced. It is a hosting
+cutover and may require DNS propagation and certificate provisioning time.
+
+1. Save the current Cloudflare DNS records (type, name, target, proxy status,
+   TTL), custom-domain settings, and production deployment commit privately.
+   Current Cloudflare DNS records restore Cloudflare; they are not necessarily
+   the historical records needed to restore GitHub Pages.
+2. In this repository's **Settings → Pages**, choose **Deploy from a branch**,
+   then **main → / (root)** and save. Wait for the GitHub Pages build to succeed.
+3. Restore a root `CNAME` containing only `photo-memory.app` through a reviewed
+   pull request. Set the GitHub Pages custom domain to `photo-memory.app` and
+   verify that the settings and repository file agree.
+4. Prepare DNS using GitHub's current custom-domain instructions or a verified
+   pre-cutover GitHub DNS snapshot. Do not guess IP addresses or reuse the
+   current Cloudflare Pages targets. Plan removal of the Cloudflare Pages
+   custom-domain associations as part of this cutover if required; keep the
+   Pages project and GitHub integration available for recovery.
+5. Point the apex and `www` records to GitHub Pages as documented by GitHub.
+   Wait for DNS checks and certificate provisioning, then enable **Enforce
+   HTTPS** when available. Verify `www` redirects permanently to the HTTPS apex,
+   without loops or conflicting Cloudflare redirect rules.
+6. Repeat all production checks before declaring recovery complete. Record the
+   hosting change and verification results in the incident notes.
+7. To return to Cloudflare, associate and validate both custom domains on the
+   Pages project before restoring its DNS records. Verify HTTPS and all flows,
+   then retire GitHub Pages and remove `CNAME` again through a reviewed PR.
+
+References:
+
+- [GitHub Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+- [GitHub Pages custom domains](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
 
 ## Security and operational constraints
 
