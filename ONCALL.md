@@ -73,9 +73,8 @@ header. This cleanup does not establish or resolve the Google Ads suspension cau
 
 ## Visitor transport security (issue #17)
 
-Target settings: zone Minimum TLS Version **1.2**, TLS 1.3 **on**, and Always
-Use HTTPS **on**. Verify actual dashboard values before treating a rollout as
-complete. R2 custom domains have their own minimum-TLS setting: the zone setting
+Verified on 2026-09-21: zone Minimum TLS Version **1.2**, TLS 1.3 **on**, and
+Always Use HTTPS **on**. Recheck the live settings before future changes. R2 custom domains have their own minimum-TLS setting: the zone setting
 alone does not cover `downloads.photo-memory.app`.
 
 The verification inventory is apex, `www`, `api`, `api-staging`, and `downloads`
@@ -83,6 +82,27 @@ under `photo-memory.app`. Recheck DNS and service custom domains before each rol
 for additions. The app API and updater URLs already use HTTPS; HTTP callers must
 switch to HTTPS directly, especially for POST requests. Redirects do not protect
 a request body that was already sent over HTTP.
+
+### September 21 rollout record
+
+| Setting | Before | After |
+| --- | --- | --- |
+| Zone minimum TLS | 1.0 | 1.2 |
+| TLS 1.3 | On | On |
+| Always Use HTTPS | Off | On |
+| Downloads R2 custom-domain minimum TLS | 1.0 | 1.2 |
+| Downloads custom-domain access | Enabled | Enabled |
+
+All 30 transport checks passed after propagation, plus all 12 production
+crawlability checks. Before rollout, nine transport checks failed: legacy TLS
+was accepted by the two API hosts and downloads, and those three hosts did not
+upgrade HTTP. The R2 API returned the new value before edge handshakes reflected
+it; verify actual connections as well as saved configuration.
+
+`npm run smoke` passed its static CTA checks but hit the existing browser-test
+mocked-download timeout at `scripts/test-public-cta-browser.mjs:187`, previously
+reproduced on unchanged main during issue #16. Full smoke is not recorded as passing.
+No HSTS, origin encryption mode, application code or DNS changes were made.
 
 ### Rollout and verification
 
