@@ -71,6 +71,68 @@ Also confirm the 404 page's home link works from a nested missing URL at desktop
 and mobile widths. Preview hosts may independently carry Cloudflare's `noindex`
 header. This cleanup does not establish or resolve the Google Ads suspension cause.
 
+## Visitor transport security (issue #17)
+
+Target settings: zone Minimum TLS Version **1.2**, TLS 1.3 **on**, and Always
+Use HTTPS **on**. Verify actual dashboard values before treating a rollout as
+complete. R2 custom domains have their own minimum-TLS setting: the zone setting
+alone does not cover `downloads.photo-memory.app`.
+
+The verification inventory is apex, `www`, `api`, `api-staging`, and `downloads`
+under `photo-memory.app`. Recheck DNS and service custom domains before each rollout
+for additions. The app API and updater URLs already use HTTPS; HTTP callers must
+switch to HTTPS directly, especially for POST requests. Redirects do not protect
+a request body that was already sent over HTTP.
+
+### Rollout and verification
+
+1. Save current zone settings, R2 custom-domain TLS setting, hostname overrides,
+   and affected hostname inventory privately. Keep credentials out of this repo.
+2. Run the checks below to capture the baseline. Raise the zone minimum to 1.2,
+   retain TLS 1.3, and verify TLS handshakes and HTTPS endpoints. If R2's custom
+   domain still accepts legacy TLS, set its own minimum to 1.2 and verify it.
+3. Enable Always Use HTTPS, then verify every host's redirect path and query,
+   API responses, and release artifact access. Investigate any hostname exception
+   before claiming the entire inventory passes. Do not add broad redirects blindly.
+4. Record actual before/after settings and verification results in the PR.
+
+```bash
+# Requires Node.js and OpenSSL 3 with TLS 1.0 through 1.3 support.
+# Optional: OPENSSL_BIN=/absolute/path/to/openssl
+npm run test:transport
+PHOTO_MEMORY_LANDING_URL=https://photo-memory.app npm run test:crawlability
+npm run smoke
+```
+
+`test:transport` contacts the listed live hosts. It performs TLS handshakes,
+read-only GETs, and HEAD requests for downloads, without signup submissions or
+full artifact downloads. Legacy TLS tests require an explicit protocol-version
+alert; DNS failures, unsupported local protocols, certificate errors, and timeouts
+fail the test rather than count as successful server rejection. Keep the configured
+signup origins aligned with the API allowlists. A staging outage must be reported
+separately, not silently skipped. These probes sample the current network path;
+they do not establish compatibility for every historical client or region.
+
+To verify TLS and HTTPS endpoint availability before enabling HTTP redirects:
+
+```bash
+node --test --test-name-pattern='TLS|HTTPS' scripts/test-transport.mjs
+```
+
+### Settings rollback
+
+If a changed setting causes regression, restore that setting's captured prior
+value immediately, then repeat endpoint checks. In **SSL/TLS → Edge Certificates**,
+restore Minimum TLS Version or Always Use HTTPS independently. Restore an R2
+custom domain's prior minimum through its custom-domain settings API if changed.
+Do not disable domain access or detach the bucket. Reverting a Git commit or a
+Pages deployment does **not** restore these account settings. HSTS and origin
+SSL encryption mode are outside this rollout.
+
+References: [Minimum TLS](https://developers.cloudflare.com/ssl/edge-certificates/additional-options/minimum-tls/),
+[Always Use HTTPS](https://developers.cloudflare.com/ssl/edge-certificates/additional-options/always-use-https/),
+and [R2 custom domains](https://developers.cloudflare.com/r2/buckets/public-buckets/).
+
 ## Rollback
 
 For a bad landing deployment, open Cloudflare **Workers & Pages →
