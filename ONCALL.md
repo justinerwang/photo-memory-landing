@@ -47,6 +47,30 @@ The apex should return `200`. The `www` hostname should return a permanent
 redirect to the apex. Also check `/privacy`, `/terms`, and
 `/upgrade-thank-you` after a production deployment.
 
+### Crawling and missing pages
+
+The root `robots.txt` allows public crawling. The root `404.html` makes Pages
+return HTTP 404 for missing resources instead of treating this static site as a
+single-page application. Keep both files in the published root. See
+[Cloudflare route matching](https://developers.cloudflare.com/pages/configuration/serving-pages/).
+
+Run the HTTP contract checks against the PR preview, then production after deployment:
+
+```bash
+PHOTO_MEMORY_LANDING_URL=https://YOUR-PREVIEW.photo-memory-landing.pages.dev npm run test:crawlability
+PHOTO_MEMORY_LANDING_URL=https://photo-memory.app npm run test:crawlability
+```
+
+The checks require plain-text robots instructions, helpful HTTP 404 responses for
+unknown paths (including `/.env` and `/.git/config`), and working homepage/legal
+routes. They make read-only GET requests and do not submit signups or download the app.
+For local validation, start `wrangler pages dev .` and set the URL to its local
+address; the CTA test's simple HTTP server does not emulate Pages routing.
+
+Also confirm the 404 page's home link works from a nested missing URL at desktop
+and mobile widths. Preview hosts may independently carry Cloudflare's `noindex`
+header. This cleanup does not establish or resolve the Google Ads suspension cause.
+
 ## Rollback
 
 For a bad landing deployment, open Cloudflare **Workers & Pages →
