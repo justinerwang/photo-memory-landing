@@ -27,7 +27,7 @@ assert(
   "Landing copy and metadata must not promise subscription-free access"
 );
 assert(
-  html.includes("Your originals stay untouched") &&
+  html.includes("Originals stay untouched") &&
     html.includes("Photo Memory never changes your original photos or folder structure."),
   "Landing must reassure visitors that originals and folder structure stay unchanged"
 );
