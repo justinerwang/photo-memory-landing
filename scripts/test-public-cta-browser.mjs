@@ -37,7 +37,6 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 const consoleErrors = [];
 const networkEvents = [];
 const signupPayloads = [];
-let downloadEndpointRequests = 0;
 let configAvailable = true;
 let responseMode = "success";
 let pendingResolve = null;
@@ -93,26 +92,6 @@ await page.route("https://api-staging.photo-memory.app/v1/beta-signups/config", 
     )
   })
 );
-await page.route("https://api-staging.photo-memory.app/v1/downloads/latest", (route) => {
-  downloadEndpointRequests += 1;
-  return route.fulfill({
-    status: 302,
-    headers: {
-      location:
-        "https://downloads.photo-memory.app/beta/Photo-Memory-0.1.1-arm64.dmg"
-    }
-  });
-});
-await page.route("https://downloads.photo-memory.app/**", (route) =>
-  route.fulfill({
-    status: 200,
-    contentType: "application/octet-stream",
-    headers: {
-      "content-disposition": 'attachment; filename="Photo-Memory-0.1.1-arm64.dmg"'
-    },
-    body: "test-dmg"
-  })
-);
 await page.route("https://api-staging.photo-memory.app/v1/beta-signups", async (route) => {
   if (route.request().method() === "OPTIONS") {
     await route.fulfill({
@@ -153,7 +132,9 @@ try {
       "https://api-staging.photo-memory.app/v1/downloads/latest",
     "Local QA must rewrite Download to the staging API"
   );
-  for (const text of ["Download for Mac - Free", "Public Beta", "Apple Silicon", "macOS"]) {
+  await assertDownloadsHidden(page);
+  assert(await page.locator('[data-track="nav_beta_click"]').isVisible(), "Desktop navigation must retain Join Beta");
+  for (const text of ["Public Beta", "Apple Silicon", "macOS"]) {
     assert(await page.getByText(text, { exact: false }).first().isVisible(), `${text} must be visible`);
   }
   const heroScreenshot = page.locator(".hero-screenshot");
@@ -184,18 +165,6 @@ try {
     (await page.getByText("Applying does not grant beta access immediately.", { exact: false }).count()) === 0,
     "The superseded immediate-access sentence must not render"
   );
-  const downloadPromise = page.waitForEvent("download");
-  await page.locator('[data-track="hero_download_click"]').click();
-  const download = await downloadPromise;
-  assert(
-    downloadEndpointRequests === 1,
-    "Clicking Download must navigate through the stable staging endpoint"
-  );
-  assert(
-    download.suggestedFilename() === "Photo-Memory-0.1.1-arm64.dmg",
-    "Download must follow the stable endpoint redirect to the release artifact"
-  );
-
   const form = page.locator("form[data-api-path]");
   const toast = page.locator("#beta-toast");
   assert(
@@ -325,6 +294,7 @@ try {
     await page.locator(".hero-screenshot").isVisible(),
     "Hero screenshot must remain visible at the narrow viewport"
   );
+  await assertDownloadsHidden(page);
   const narrowForm = page.locator("form[data-api-path]");
   await page.waitForFunction(() => Boolean(window.__turnstileOptions));
   await narrowForm.locator("#email").fill("person@example.com");
@@ -395,5 +365,25 @@ function assert(condition, message) {
 async function waitForFreshTurnstileToken(page) {
   await page.waitForFunction(
     () => window.betaState?.token === "turnstile-token-reset"
+  );
+}
+
+async function assertDownloadsHidden(page) {
+  assert(
+    await page.getByRole("link", { name: /download/i }).count() === 0,
+    "Download links must be absent from the accessible UI during beta"
+  );
+  for (const track of ["nav_download_click", "hero_download_click"]) {
+    const link = page.locator(`[data-track="${track}"]`);
+    assert(await link.isHidden(), `${track} must not be visible during beta`);
+    await link.evaluate((element) => element.focus());
+    assert(
+      !await link.evaluate((element) => document.activeElement === element),
+      `${track} must not receive keyboard focus during beta`
+    );
+  }
+  assert(
+    await page.locator('[data-track="hero_beta_click"]').isVisible(),
+    "Hero Join Beta must remain visible at every viewport"
   );
 }

@@ -35,12 +35,12 @@ assert(
 assert(
   (html.match(/https:\/\/api\.photo-memory\.app\/v1\/downloads\/latest/g) ?? [])
     .length >= 2,
-  "Navigation and hero must both expose the stable Download CTA"
+  "Navigation and hero must retain the stable Download URL for restoration"
 );
 assert(!html.includes("formspree.io"), "Join Beta must not submit to Formspree");
 assert(!html.includes("downloads.photo-memory.app/"), "Landing page must not embed an R2 artifact URL");
 for (const label of ["Download for Mac - Free", "Public Beta", "Apple Silicon", "macOS"]) {
-  assert(html.includes(label), `Landing page must show ${label}`);
+  assert(html.includes(label), `Landing markup must retain ${label}`);
 }
 assert(
   html.includes('data-api-path="/v1/beta-signups"'),

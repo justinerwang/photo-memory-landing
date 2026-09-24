@@ -143,6 +143,11 @@
         color: #fff;
       }
 
+      /* Temporarily hide download CTAs during beta; remove hidden to restore. */
+      .button[hidden] {
+        display: none;
+      }
+
       .button {
         display: inline-flex;
         min-height: 54px;
@@ -1022,6 +1027,7 @@
           href="https://api.photo-memory.app/v1/downloads/latest"
           data-download-path="/v1/downloads/latest"
           data-track="nav_download_click"
+          hidden
         >Download</a>
       </nav>
     </header>
@@ -1041,6 +1047,7 @@
               href="https://api.photo-memory.app/v1/downloads/latest"
               data-download-path="/v1/downloads/latest"
               data-track="hero_download_click"
+              hidden
             >Download for Mac - Free</a>
             <a class="button secondary" href="#beta" data-track="hero_beta_click">Join Beta</a>
             <p class="compatibility">Public Beta for macOS on Apple Silicon</p>
