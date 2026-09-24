@@ -3,8 +3,34 @@ import { resolve } from "node:path";
 
 const html = readFileSync(resolve("index.html"), "utf8");
 const privacy = readFileSync(resolve("privacy.html"), "utf8");
+const terms = readFileSync(resolve("terms.html"), "utf8");
 const packageJson = JSON.parse(readFileSync(resolve("package.json"), "utf8"));
 const heroScreenshotPath = resolve("assets/search-jamie-cannon-beach.webp");
+
+for (const [name, page] of [["Privacy", privacy], ["Terms", terms]]) {
+  const copy = page.replace(/\s+/g, " ");
+  assert(
+    copy.includes("Photo Memory does not modify your original photos or change your folder structure."),
+    `${name} must state that original photos and folder structure remain unchanged`
+  );
+}
+const termsCopy = terms.replace(/\s+/g, " ");
+assert(
+  termsCopy.includes("Submitting a beta application is free and does not start a subscription.") &&
+    termsCopy.includes("Paid plans, including subscriptions, may be offered in the future.") &&
+    termsCopy.includes("Pricing and applicable terms will be provided before purchase."),
+  "Terms must distinguish free beta applications from possible future paid plans"
+);
+
+assert(
+  !/no subscription|no recurring fee/i.test(html),
+  "Landing copy and metadata must not promise subscription-free access"
+);
+assert(
+  html.includes("Your originals stay untouched") &&
+    html.includes("Photo Memory never changes your original photos or folder structure."),
+  "Landing must reassure visitors that originals and folder structure stay unchanged"
+);
 
 assert(existsSync(heroScreenshotPath), "Landing hero screenshot asset must exist");
 assert(
