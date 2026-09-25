@@ -177,7 +177,7 @@ try {
   );
   await form.locator("#email").fill("person@example.com");
   await form.locator("#discovery_source").selectOption("search");
-  await form.getByRole("button", { name: "Join Beta" }).click();
+  await form.getByRole("button", { name: "Join Beta for Free" }).click();
   const successText =
     "Request received. We will email you separately when beta access is granted.";
   try {
@@ -213,7 +213,7 @@ try {
 
   await page.waitForTimeout(4_000);
   await waitForFreshTurnstileToken(page);
-  await form.getByRole("button", { name: "Join Beta" }).click();
+  await form.getByRole("button", { name: "Join Beta for Free" }).click();
   await page.getByText(successText, { exact: true }).waitFor();
   assert(signupPayloads.length === 2, "A repeated application must receive the same flow");
   await page.waitForTimeout(1_200);
@@ -227,7 +227,7 @@ try {
 
   await waitForFreshTurnstileToken(page);
   responseMode = "service-error";
-  await form.getByRole("button", { name: "Join Beta" }).click();
+  await form.getByRole("button", { name: "Join Beta for Free" }).click();
   await page
     .getByText("Beta applications are temporarily unavailable. Please try again later.", {
       exact: true
@@ -279,7 +279,7 @@ try {
 
   await waitForFreshTurnstileToken(page);
   responseMode = "pending";
-  const pendingClick = form.getByRole("button", { name: "Join Beta" }).click();
+  const pendingClick = form.getByRole("button", { name: "Join Beta for Free" }).click();
   await page.getByRole("button", { name: "Applying..." }).waitFor();
   assert(
     await page.getByRole("button", { name: "Applying..." }).isDisabled(),
@@ -303,7 +303,7 @@ try {
   await page.waitForFunction(() => Boolean(window.__turnstileOptions));
   await narrowForm.locator("#email").fill("person@example.com");
   await narrowForm.locator("#discovery_source").selectOption("search");
-  await narrowForm.getByRole("button", { name: "Join Beta" }).click();
+  await narrowForm.getByRole("button", { name: "Join Beta for Free" }).click();
   await page.getByText(successText, { exact: true }).waitFor();
   assert(await toast.isVisible(), "Signup bubble must remain visible at the narrow viewport");
   const overflow = await page.evaluate(() => ({
@@ -335,7 +335,7 @@ try {
   await page.getByText(unavailableMessage, { exact: true }).waitFor();
   const unavailableForm = page.locator("form[data-api-path]");
   assert(
-    await unavailableForm.getByRole("button", { name: "Join Beta" }).isDisabled(),
+    await unavailableForm.getByRole("button", { name: "Join Beta for Free" }).isDisabled(),
     "Submit must stay disabled when verification initialization fails"
   );
   await unavailableForm.evaluate((form) => form.requestSubmit());
