@@ -226,6 +226,14 @@
         line-height: 1.55;
       }
 
+      .feature-list {
+        padding-left: 1.25em;
+      }
+
+      .feature-list li + li {
+        margin-top: 8px;
+      }
+
       .hero-actions {
         display: flex;
         flex-wrap: wrap;
@@ -1037,10 +1045,11 @@
         <div class="hero-copy">
           <p class="eyebrow hero-kicker">Public Beta &middot; macOS &middot; Apple Silicon</p>
           <h1>Years of photos, finally searchable</h1>
-          <p class="lead">
-            Search photos on folders and external drives by date, location, person, and
-            more. Find duplicates before you declutter. Everything stays on your Mac.
-          </p>
+          <ul class="lead feature-list">
+            <li>Find duplicates</li>
+            <li>Label family &amp; friends</li>
+            <li>Search by date, location, person and type</li>
+          </ul>
           <div class="hero-actions">
             <a
               class="button"
