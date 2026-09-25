@@ -134,6 +134,10 @@ try {
   );
   await assertDownloadsHidden(page);
   assert(await page.locator('[data-track="nav_beta_click"]').isVisible(), "Desktop navigation must retain Join Beta");
+  assert(
+    await page.locator('[data-track="nav_beta_click"]').textContent() === "Join Beta for Free",
+    "Navigation Join Beta must communicate that signup is free"
+  );
   for (const text of ["Public Beta", "Apple Silicon", "macOS"]) {
     assert(await page.getByText(text, { exact: false }).first().isVisible(), `${text} must be visible`);
   }
