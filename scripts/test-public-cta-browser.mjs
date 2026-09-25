@@ -383,7 +383,7 @@ async function assertDownloadsHidden(page) {
     );
   }
   assert(
-    await page.locator('[data-track="hero_beta_click"]').isVisible(),
-    "Hero Join Beta must remain visible at every viewport"
+    await page.locator('[data-track="hero_beta_click"]').count() === 0,
+    "Duplicate hero Join Beta must be absent at every viewport"
   );
 }
